@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "@zatgo/ui/globals.css";
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-foreground);
+  background: var(--color-background);
+}
