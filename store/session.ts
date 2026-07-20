@@ -1,8 +1,8 @@
 "use client";
 
 import { create } from "zustand";
-import type { EnvKey } from "@/lib/config";
-import { DEFAULT_SITE } from "@/lib/config";
+import type { EnvKey } from "@/lib/shared";
+import { DEFAULT_SITE } from "@/lib/shared";
 
 type SessionState = {
   hydrated: boolean;

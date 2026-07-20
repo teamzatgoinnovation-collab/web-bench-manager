@@ -1,7 +1,7 @@
 "use client";
 
 import { useSessionStore } from "@/store/session";
-import type { EnvKey } from "@/lib/config";
+import type { EnvKey } from "@/lib/shared";
 
 async function parseJson<T>(res: Response): Promise<T> {
   const data = (await res.json()) as T & { error?: string };

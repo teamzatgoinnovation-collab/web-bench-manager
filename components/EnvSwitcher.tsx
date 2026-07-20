@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, cn } from "@zatgo/ui";
-import type { EnvKey } from "@/lib/config";
+import type { EnvKey } from "@/lib/shared";
 import { useSessionStore } from "@/store/session";
 import { savePrefs } from "@/lib/client";
 import { toast } from "sonner";
