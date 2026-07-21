@@ -3,6 +3,7 @@ import { isAuthenticated, requireAuthResponse } from "@/lib/auth";
 import { clearCloudContainerCache } from "@/lib/exec";
 import {
   getSettingsFormValues,
+  isHostedOpsUi,
   readStoredSettings,
   writeStoredSettings,
   type StoredSettings,
@@ -14,12 +15,18 @@ export async function GET() {
 
   const form = getSettingsFormValues();
   const cfg = getDoSshConfig();
+  const hosted = isHostedOpsUi();
   return NextResponse.json({
     settings: form,
-    sshReady: !("error" in cfg),
-    sshError: "error" in cfg ? cfg.error : undefined,
+    hosted,
+    sshReady: !hosted && !("error" in cfg),
+    sshError: hosted
+      ? "Cloud setup only works on http://localhost:3008 (this site cannot use your SSH keys or Docker)."
+      : "error" in cfg
+        ? cfg.error
+        : undefined,
     effective:
-      "error" in cfg
+      hosted || "error" in cfg
         ? null
         : {
             host: cfg.host,

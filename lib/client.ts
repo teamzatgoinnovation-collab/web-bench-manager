@@ -222,6 +222,7 @@ export async function fetchSettings() {
     };
     sshReady: boolean;
     sshError?: string;
+    hosted?: boolean;
   }>(res);
 }
 

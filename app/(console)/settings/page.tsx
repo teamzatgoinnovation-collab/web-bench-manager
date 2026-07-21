@@ -29,6 +29,7 @@ export default function SettingsPage() {
   const [localDbPassword, setLocalDbPassword] = useState("");
   const [sshReady, setSshReady] = useState<boolean | null>(null);
   const [sshError, setSshError] = useState<string | undefined>();
+  const [hosted, setHosted] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -48,6 +49,7 @@ export default function SettingsPage() {
       setDeskUrl(data.settings.doDeskUrl || "https://erp.zatgo.online");
       setSshReady(data.sshReady);
       setSshError(data.sshError);
+      setHosted(Boolean(data.hosted));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load settings");
     } finally {
@@ -140,11 +142,22 @@ export default function SettingsPage() {
         description="Production cloud setup: choose a provider, enter droplet Public IPv4 and SSH details, then test the connection. Persist only works on localhost — not on Vercel."
       />
 
-      {sshReady === false ? (
+      {hosted ? (
+        <div className="mb-4 rounded-[var(--radius-lg)] border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+          You are on the <strong>hosted</strong> UI (<code>bench.zatgo.online</code>). Cloud SSH,
+          Docker, and Settings save only work on your PC at{" "}
+          <a className="font-medium underline" href="http://localhost:3008">
+            http://localhost:3008
+          </a>
+          . Key path like <code>/home/agaib/.ssh/id_ed25519</code> is on your machine, not Vercel.
+        </div>
+      ) : null}
+
+      {sshReady === false && !hosted ? (
         <p className="mb-4 rounded-[var(--radius-lg)] border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
           {sshError || "Cloud SSH not ready — complete DigitalOcean fields below."}
         </p>
-      ) : sshReady ? (
+      ) : sshReady && !hosted ? (
         <p className="mb-4 text-sm text-[var(--color-muted-foreground)]">
           SSH config looks valid. Use the env switcher → <strong>DigitalOcean</strong> for
           production ops.
@@ -152,6 +165,7 @@ export default function SettingsPage() {
       ) : null}
 
       <form onSubmit={(e) => void onSave(e)} className="max-w-2xl space-y-8">
+        <fieldset disabled={hosted || loading} className="min-w-0 space-y-8 disabled:opacity-70">
         <section className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
             1. Cloud provider
@@ -327,18 +341,21 @@ export default function SettingsPage() {
         ) : null}
 
         <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={loading || busy || testing}>
+          <Button type="submit" disabled={hosted || loading || busy || testing}>
             {busy ? "Saving…" : "Save settings"}
           </Button>
           <Button
             type="button"
             variant="outline"
-            disabled={loading || busy || testing || provider !== "digitalocean"}
+            disabled={
+              hosted || loading || busy || testing || provider !== "digitalocean"
+            }
             onClick={() => void onTest()}
           >
             {testing ? "Testing…" : "Test connection"}
           </Button>
         </div>
+        </fieldset>
       </form>
     </div>
   );

@@ -33,6 +33,10 @@ function isServerlessReadonlyFs(): boolean {
   return Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
 }
 
+export function isHostedOpsUi(): boolean {
+  return isServerlessReadonlyFs();
+}
+
 /** Local: `<cwd>/data/settings.json`. Serverless: `/tmp/...` (ephemeral) or refuse writes. */
 function settingsPath(): string {
   if (isServerlessReadonlyFs()) {
@@ -105,12 +109,16 @@ export function sanitizeSettings(input: StoredSettings): StoredSettings {
     const keyPath = String(input.doSshKeyPath).trim();
     if (keyPath) {
       if (!path.isAbsolute(keyPath)) throw new Error("Key path must be absolute");
-      const sshDir = path.join(os.homedir(), ".ssh");
-      const resolved = path.resolve(keyPath);
-      if (!resolved.startsWith(sshDir + path.sep) && resolved !== sshDir) {
-        throw new Error(`Key path must be under ${sshDir}`);
+      if (!isServerlessReadonlyFs()) {
+        const sshDir = path.join(os.homedir(), ".ssh");
+        const resolved = path.resolve(keyPath);
+        if (!resolved.startsWith(sshDir + path.sep) && resolved !== sshDir) {
+          throw new Error(`Key path must be under ${sshDir}`);
+        }
+        out.doSshKeyPath = resolved;
+      } else {
+        out.doSshKeyPath = keyPath;
       }
-      out.doSshKeyPath = resolved;
     }
   }
   if (input.doBackendContainer !== undefined) {

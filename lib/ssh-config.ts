@@ -6,6 +6,7 @@ import {
   DEFAULT_DO_SSH_PORT,
   DEFAULT_DO_SSH_USER,
   defaultKeyPath,
+  isHostedOpsUi,
   readStoredSettings,
 } from "./settings-store";
 
@@ -76,6 +77,12 @@ export function getDoSshConfig(): DoSshConfig | { error: string } {
   }
   if (!keyPath || !path.isAbsolute(keyPath)) {
     return { error: "DO_SSH_KEY_PATH must be an absolute path" };
+  }
+  if (isHostedOpsUi()) {
+    return {
+      error:
+        "Cloud SSH only works on your machine. Open http://localhost:3008 — bench.zatgo.online cannot reach your ~/.ssh keys or Docker.",
+    };
   }
   const sshDir = path.join(os.homedir(), ".ssh");
   const resolved = path.resolve(keyPath);
