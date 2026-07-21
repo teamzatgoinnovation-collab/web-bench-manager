@@ -33,6 +33,15 @@ pnpm dev:bench-manager-desktop
 
 See [`Clients/desktop/bench-manager-desktop`](../desktop/bench-manager-desktop).
 
+Flutter client (same API):
+
+```bash
+cd Clients/flutter/bench_manager
+flutter run -d linux --dart-define=BENCH_MANAGER_URL=http://127.0.0.1:3008
+```
+
+See [`Clients/flutter/bench_manager`](../flutter/bench_manager).
+
 ## Environments
 
 | Env key | UI label | Transport | Default site |
