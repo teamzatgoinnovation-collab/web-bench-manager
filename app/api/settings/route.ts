@@ -27,6 +27,8 @@ export async function GET() {
             port: cfg.port,
             keyPath: cfg.keyPath,
             backendContainer: cfg.backendContainer ?? null,
+            defaultSite: form.doDefaultSite,
+            deskUrl: form.doDeskUrl,
           },
   });
 }
@@ -45,6 +47,8 @@ export async function PUT(request: Request) {
     const prev = readStoredSettings();
     const merged: StoredSettings = {
       ...prev,
+      cloudProvider:
+        body.cloudProvider !== undefined ? body.cloudProvider : prev.cloudProvider,
       doSshHost: body.doSshHost !== undefined ? body.doSshHost : prev.doSshHost,
       doSshUser: body.doSshUser !== undefined ? body.doSshUser : prev.doSshUser,
       doSshPort: body.doSshPort !== undefined ? body.doSshPort : prev.doSshPort,
@@ -54,9 +58,11 @@ export async function PUT(request: Request) {
         body.doBackendContainer !== undefined
           ? body.doBackendContainer
           : prev.doBackendContainer,
+      doDefaultSite:
+        body.doDefaultSite !== undefined ? body.doDefaultSite : prev.doDefaultSite,
+      doDeskUrl: body.doDeskUrl !== undefined ? body.doDeskUrl : prev.doDeskUrl,
     };
 
-    // Only update passwords when a non-empty string is sent (blank = leave unchanged)
     if (typeof body.doDbRootPassword === "string" && body.doDbRootPassword.length > 0) {
       merged.doDbRootPassword = body.doDbRootPassword;
     }

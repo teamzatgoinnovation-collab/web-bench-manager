@@ -32,9 +32,18 @@ Open [http://localhost:3008](http://localhost:3008). Dev token with `ALLOW_INSEC
 | `local` | Local | `docker exec erpnext-backend-1` | `erp.zatgo.online` |
 | `cloud` | DigitalOcean | SSH then `docker exec` (discover `*backend*`) | `erp.zatgo.online` |
 
-### DigitalOcean `.env.local`
+### Cloud setup (Settings UI)
 
-Prefer **Settings** in the app (persists to `data/settings.json`). Env is fallback; default host is **`157.230.8.164`**.
+1. Open **Settings**
+2. Choose **DigitalOcean**
+3. Enter **Droplet Public IPv4** (default `157.230.8.164`), SSH user/port/key path
+4. Set production site (`erp.zatgo.online`) and Desk URL
+5. **Test connection**, then **Save**
+6. Switch env to **DigitalOcean** in the header
+
+Values persist in `data/settings.json` (gitignored) and override `.env.local`.
+
+### DigitalOcean `.env.local` (fallback)
 
 ```bash
 DO_SSH_HOST=157.230.8.164
@@ -42,6 +51,8 @@ DO_SSH_USER=root
 DO_SSH_PORT=22
 DO_SSH_KEY_PATH=/home/YOU/.ssh/id_ed25519
 # DO_BACKEND_CONTAINER=frappe_docker-backend-1
+# DO_DEFAULT_SITE=erp.zatgo.online
+# DO_DESK_URL=https://erp.zatgo.online
 # DO_DB_ROOT_PASSWORD=…   # Manual → new-site
 # LOCAL_DB_ROOT_PASSWORD=…  # Local → new-site
 ```

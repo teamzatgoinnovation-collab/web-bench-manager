@@ -2,12 +2,17 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+export type CloudProvider = "digitalocean" | "none";
+
 export type StoredSettings = {
+  cloudProvider?: CloudProvider;
   doSshHost?: string;
   doSshUser?: string;
   doSshPort?: number;
   doSshKeyPath?: string;
   doBackendContainer?: string;
+  doDefaultSite?: string;
+  doDeskUrl?: string;
   /** Stored only if user opts in; prefer env for secrets. */
   doDbRootPassword?: string;
   localDbRootPassword?: string;
@@ -15,10 +20,14 @@ export type StoredSettings = {
 
 const HOST_RE = /^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$/;
 const USER_RE = /^[A-Za-z0-9._-]+$/;
+const SITE_RE = /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/i;
+const URL_RE = /^https?:\/\/[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?(:\d+)?(\/.*)?$/i;
 
 export const DEFAULT_DO_SSH_HOST = "157.230.8.164";
 export const DEFAULT_DO_SSH_USER = "root";
 export const DEFAULT_DO_SSH_PORT = 22;
+export const DEFAULT_DO_SITE = "erp.zatgo.online";
+export const DEFAULT_DO_DESK_URL = "https://erp.zatgo.online";
 
 function settingsPath(): string {
   return path.join(process.cwd(), "data", "settings.json");
@@ -50,9 +59,17 @@ export function writeStoredSettings(next: StoredSettings): StoredSettings {
 export function sanitizeSettings(input: StoredSettings): StoredSettings {
   const out: StoredSettings = {};
 
+  if (input.cloudProvider !== undefined) {
+    const p = String(input.cloudProvider);
+    if (p !== "digitalocean" && p !== "none") {
+      throw new Error(`Invalid cloud provider: ${p}`);
+    }
+    out.cloudProvider = p as CloudProvider;
+  }
+
   if (input.doSshHost !== undefined) {
     const host = String(input.doSshHost).trim();
-    if (host && !HOST_RE.test(host)) throw new Error(`Invalid host: ${host}`);
+    if (host && !HOST_RE.test(host)) throw new Error(`Invalid Public IPv4 / host: ${host}`);
     out.doSshHost = host || undefined;
   }
   if (input.doSshUser !== undefined) {
@@ -86,6 +103,16 @@ export function sanitizeSettings(input: StoredSettings): StoredSettings {
     }
     out.doBackendContainer = c || undefined;
   }
+  if (input.doDefaultSite !== undefined) {
+    const site = String(input.doDefaultSite).trim();
+    if (site && !SITE_RE.test(site)) throw new Error(`Invalid site: ${site}`);
+    out.doDefaultSite = site || undefined;
+  }
+  if (input.doDeskUrl !== undefined) {
+    const url = String(input.doDeskUrl).trim();
+    if (url && !URL_RE.test(url)) throw new Error(`Invalid Desk URL: ${url}`);
+    out.doDeskUrl = url || undefined;
+  }
   if (input.doDbRootPassword !== undefined) {
     const p = String(input.doDbRootPassword);
     out.doDbRootPassword = p || undefined;
@@ -102,13 +129,15 @@ export function defaultKeyPath(): string {
   return path.join(os.homedir(), ".ssh", "id_ed25519");
 }
 
-/** Effective values for the Settings form (settings → env → defaults). */
-export function getSettingsFormValues(): {
+export type SettingsFormValues = {
+  cloudProvider: CloudProvider;
   doSshHost: string;
   doSshUser: string;
   doSshPort: number;
   doSshKeyPath: string;
   doBackendContainer: string;
+  doDefaultSite: string;
+  doDeskUrl: string;
   doDbRootPasswordSet: boolean;
   localDbRootPasswordSet: boolean;
   source: {
@@ -117,7 +146,10 @@ export function getSettingsFormValues(): {
     port: "settings" | "env" | "default";
     keyPath: "settings" | "env" | "default";
   };
-} {
+};
+
+/** Effective values for the Settings form (settings → env → defaults). */
+export function getSettingsFormValues(): SettingsFormValues {
   const stored = readStoredSettings();
 
   const host =
@@ -139,13 +171,32 @@ export function getSettingsFormValues(): {
     stored.doBackendContainer ||
     process.env.DO_BACKEND_CONTAINER?.trim() ||
     "";
+  const site =
+    stored.doDefaultSite ||
+    process.env.DO_DEFAULT_SITE?.trim() ||
+    DEFAULT_DO_SITE;
+  const desk =
+    stored.doDeskUrl ||
+    process.env.DO_DESK_URL?.trim() ||
+    DEFAULT_DO_DESK_URL;
+
+  const cloudProvider: CloudProvider =
+    stored.cloudProvider === "digitalocean" ||
+    Boolean(stored.doSshHost || process.env.DO_SSH_HOST?.trim())
+      ? "digitalocean"
+      : stored.cloudProvider === "none"
+        ? "none"
+        : "digitalocean";
 
   return {
+    cloudProvider,
     doSshHost: host,
     doSshUser: user,
     doSshPort: Number.isFinite(port) ? port : DEFAULT_DO_SSH_PORT,
     doSshKeyPath: keyPath,
     doBackendContainer: backend,
+    doDefaultSite: site,
+    doDeskUrl: desk,
     doDbRootPasswordSet: Boolean(
       stored.doDbRootPassword || process.env.DO_DB_ROOT_PASSWORD?.trim(),
     ),

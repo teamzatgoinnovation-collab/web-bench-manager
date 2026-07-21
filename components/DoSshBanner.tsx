@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchEnv } from "@/lib/client";
+import Link from "next/link";
+import { fetchSettings } from "@/lib/client";
 import { useSessionStore } from "@/store/session";
 
 export function DoSshBanner() {
@@ -15,24 +16,23 @@ export function DoSshBanner() {
     }
     void (async () => {
       try {
-        const data = await fetchEnv();
-        const cloud = data.health.find((h) => h.env === "cloud");
-        if (!data.digitalOcean?.sshConfigured) {
+        const data = await fetchSettings();
+        if (!data.sshReady) {
           setMessage(
-            "DigitalOcean SSH is not ready. Open Settings to set host (default 157.230.8.164), user, and key path under ~/.ssh.",
+            "Complete Cloud setup in Settings: choose DigitalOcean, enter droplet Public IPv4, SSH user/key, then Test connection.",
           );
           return;
         }
-        if (cloud && !cloud.running) {
-          setMessage(
-            cloud.sshError ||
-              `DigitalOcean backend unreachable (${cloud.container}). Check SSH and container health.`,
-          );
+        const cloudHint = data.settings.doSshHost
+          ? `DigitalOcean ${data.settings.doSshHost}`
+          : null;
+        if (cloudHint && data.sshError) {
+          setMessage(`${cloudHint}: ${data.sshError}`);
           return;
         }
         setMessage(null);
       } catch {
-        setMessage("Could not load DigitalOcean health.");
+        setMessage("Could not load DigitalOcean health. Open Settings to configure.");
       }
     })();
   }, [env]);
@@ -41,7 +41,10 @@ export function DoSshBanner() {
 
   return (
     <div className="mb-4 rounded-[var(--radius-lg)] border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-      {message}
+      {message}{" "}
+      <Link href="/settings" className="font-medium underline">
+        Open Settings
+      </Link>
     </div>
   );
 }

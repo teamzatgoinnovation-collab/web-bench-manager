@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge, Button, PageHeader, StatCard } from "@zatgo/ui";
 import { toast } from "sonner";
-import { fetchApps, fetchEnv, fetchRecentJobs, fetchSites } from "@/lib/client";
+import { DoSshBanner } from "@/components/DoSshBanner";
+import { fetchApps, fetchEnv, fetchRecentJobs, fetchSettings, fetchSites } from "@/lib/client";
 import { useSessionStore } from "@/store/session";
 
 export default function DashboardPage() {
@@ -25,20 +26,27 @@ export default function DashboardPage() {
     Array<{ id: string; kind: string; status: string; createdAt: number }>
   >([]);
   const [loading, setLoading] = useState(true);
+  const [cloudReady, setCloudReady] = useState<boolean | null>(null);
+  const [deskUrl, setDeskUrl] = useState("https://erp.zatgo.online");
 
   const load = async () => {
     setLoading(true);
     try {
-      const [envData, sitesData, appsData, jobsData] = await Promise.all([
+      const [envData, sitesData, appsData, jobsData, settings] = await Promise.all([
         fetchEnv(),
         fetchSites(env),
         fetchApps(env, site),
         fetchRecentJobs(),
+        fetchSettings().catch(() => null),
       ]);
       setHealth(envData.health);
       setSites(sitesData.sites);
       setApps(appsData.apps);
       setJobs(jobsData.jobs);
+      if (settings) {
+        setCloudReady(settings.sshReady);
+        setDeskUrl(settings.settings.doDeskUrl || "https://erp.zatgo.online");
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load dashboard");
     } finally {
@@ -66,10 +74,25 @@ export default function DashboardPage() {
         }
       />
 
+      <DoSshBanner />
+
+      {cloudReady === false ? (
+        <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
+          <h2 className="font-medium">Set up production cloud</h2>
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+            Choose DigitalOcean, enter your droplet Public IPv4 and SSH details, then Test
+            connection. Local ops still work without this.
+          </p>
+          <Button className="mt-3" asChild>
+            <Link href="/settings">Open Cloud setup</Link>
+          </Button>
+        </div>
+      ) : null}
+
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Active env"
-          value={env}
+          value={env === "cloud" ? "DigitalOcean" : "Local"}
           description={local || cloud ? `site ${site}` : undefined}
         />
         <StatCard
@@ -89,10 +112,21 @@ export default function DashboardPage() {
         <StatCard title="Installed apps" value={String(apps.length)} description={site} />
       </div>
 
+      {cloudReady ? (
+        <p className="mb-4 text-sm text-[var(--color-muted-foreground)]">
+          Desk:{" "}
+          <a href={deskUrl} className="underline" target="_blank" rel="noreferrer">
+            {deskUrl}
+          </a>
+        </p>
+      ) : null}
+
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-medium">Sites on {env}</h2>
+            <h2 className="font-medium">
+              Sites on {env === "cloud" ? "DigitalOcean" : "Local"}
+            </h2>
             <Link href="/sites" className="text-sm text-[var(--color-muted-foreground)] underline">
               Manage
             </Link>

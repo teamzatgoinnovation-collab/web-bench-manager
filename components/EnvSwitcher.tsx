@@ -3,7 +3,7 @@
 import { Button, cn } from "@zatgo/ui";
 import type { EnvKey } from "@/lib/shared";
 import { useSessionStore } from "@/store/session";
-import { savePrefs } from "@/lib/client";
+import { fetchSettings, savePrefs } from "@/lib/client";
 import { toast } from "sonner";
 
 const OPTIONS: { key: EnvKey; label: string }[] = [
@@ -18,8 +18,25 @@ export function EnvSwitcher() {
   const onSelect = async (next: EnvKey) => {
     if (next === env) return;
     try {
-      await savePrefs({ env: next, site });
-      toast.success(`Environment: ${next}`);
+      let nextSite = site;
+      if (next === "cloud") {
+        try {
+          const settings = await fetchSettings();
+          if (!settings.sshReady) {
+            toast.error(
+              "Complete Cloud setup in Settings (DigitalOcean Public IPv4 + SSH) first",
+            );
+            return;
+          }
+          if (settings.settings.doDefaultSite) {
+            nextSite = settings.settings.doDefaultSite;
+          }
+        } catch {
+          // fall through with current site
+        }
+      }
+      await savePrefs({ env: next, site: nextSite });
+      toast.success(next === "cloud" ? "Environment: DigitalOcean" : "Environment: Local");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to switch env");
     }

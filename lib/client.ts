@@ -208,11 +208,14 @@ export async function fetchSettings() {
   const res = await fetch("/api/settings");
   return parseJson<{
     settings: {
+      cloudProvider: "digitalocean" | "none";
       doSshHost: string;
       doSshUser: string;
       doSshPort: number;
       doSshKeyPath: string;
       doBackendContainer: string;
+      doDefaultSite: string;
+      doDeskUrl: string;
       doDbRootPasswordSet: boolean;
       localDbRootPasswordSet: boolean;
       source: Record<string, string>;
@@ -223,11 +226,14 @@ export async function fetchSettings() {
 }
 
 export async function saveSettings(body: {
+  cloudProvider?: "digitalocean" | "none";
   doSshHost: string;
   doSshUser: string;
   doSshPort: number;
   doSshKeyPath: string;
   doBackendContainer?: string;
+  doDefaultSite?: string;
+  doDeskUrl?: string;
   doDbRootPassword?: string;
   localDbRootPassword?: string;
 }) {
@@ -239,14 +245,29 @@ export async function saveSettings(body: {
   return parseJson<{
     ok: boolean;
     settings: {
+      cloudProvider: "digitalocean" | "none";
       doSshHost: string;
       doSshUser: string;
       doSshPort: number;
       doSshKeyPath: string;
       doBackendContainer: string;
+      doDefaultSite: string;
+      doDeskUrl: string;
       source: Record<string, string>;
     };
     sshReady: boolean;
     sshError?: string;
+  }>(res);
+}
+
+export async function testCloudConnection() {
+  const res = await fetch("/api/settings/test", { method: "POST" });
+  return parseJson<{
+    ok: boolean;
+    step?: string;
+    host?: string;
+    container?: string;
+    running?: boolean;
+    error?: string;
   }>(res);
 }
