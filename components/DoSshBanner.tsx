@@ -19,7 +19,7 @@ export function DoSshBanner() {
         const cloud = data.health.find((h) => h.env === "cloud");
         if (!data.digitalOcean?.sshConfigured) {
           setMessage(
-            "DigitalOcean SSH is not configured. Set DO_SSH_HOST, DO_SSH_USER, DO_SSH_PORT, and DO_SSH_KEY_PATH in .env.local.",
+            "DigitalOcean SSH is not ready. Open Settings to set host (default 157.230.8.164), user, and key path under ~/.ssh.",
           );
           return;
         }

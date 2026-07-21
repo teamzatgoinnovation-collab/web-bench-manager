@@ -28,6 +28,7 @@ const nav = [
   { href: "/automatic", label: "Automatic", icon: Play },
   { href: "/manual", label: "Manual", icon: SquareMenu },
   { href: "/deploy", label: "Deploy", icon: Layers },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {

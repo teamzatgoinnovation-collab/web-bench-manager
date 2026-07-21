@@ -1,6 +1,13 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import {
+  DEFAULT_DO_SSH_HOST,
+  DEFAULT_DO_SSH_PORT,
+  DEFAULT_DO_SSH_USER,
+  defaultKeyPath,
+  readStoredSettings,
+} from "./settings-store";
 
 export type DoSshConfig = {
   host: string;
@@ -15,23 +22,46 @@ const HOST_RE = /^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$/;
 const USER_RE = /^[A-Za-z0-9._-]+$/;
 
 export function getLocalDbRootPassword(): string | undefined {
-  const v = process.env.LOCAL_DB_ROOT_PASSWORD?.trim();
-  return v || undefined;
+  const stored = readStoredSettings();
+  return (
+    stored.localDbRootPassword?.trim() ||
+    process.env.LOCAL_DB_ROOT_PASSWORD?.trim() ||
+    undefined
+  );
 }
 
 export function getDoSshConfig(): DoSshConfig | { error: string } {
-  const host = process.env.DO_SSH_HOST?.trim() || "157.230.8.164";
-  const user = process.env.DO_SSH_USER?.trim() || "root";
-  const portRaw = process.env.DO_SSH_PORT?.trim() || "22";
+  const stored = readStoredSettings();
+
+  const host =
+    stored.doSshHost?.trim() ||
+    process.env.DO_SSH_HOST?.trim() ||
+    DEFAULT_DO_SSH_HOST;
+  const user =
+    stored.doSshUser?.trim() ||
+    process.env.DO_SSH_USER?.trim() ||
+    DEFAULT_DO_SSH_USER;
+  const portRaw =
+    stored.doSshPort !== undefined
+      ? String(stored.doSshPort)
+      : process.env.DO_SSH_PORT?.trim() || String(DEFAULT_DO_SSH_PORT);
   const keyPath =
-    process.env.DO_SSH_KEY_PATH?.trim() || path.join(os.homedir(), ".ssh", "id_ed25519");
-  const backendContainer = process.env.DO_BACKEND_CONTAINER?.trim() || undefined;
-  const dbRootPassword = process.env.DO_DB_ROOT_PASSWORD?.trim() || undefined;
+    stored.doSshKeyPath?.trim() ||
+    process.env.DO_SSH_KEY_PATH?.trim() ||
+    defaultKeyPath();
+  const backendContainer =
+    stored.doBackendContainer?.trim() ||
+    process.env.DO_BACKEND_CONTAINER?.trim() ||
+    undefined;
+  const dbRootPassword =
+    stored.doDbRootPassword?.trim() ||
+    process.env.DO_DB_ROOT_PASSWORD?.trim() ||
+    undefined;
 
   if (!host) {
     return {
       error:
-        "DigitalOcean SSH not configured: set DO_SSH_HOST, DO_SSH_USER, DO_SSH_PORT, DO_SSH_KEY_PATH",
+        "DigitalOcean SSH not configured: set host in Settings or DO_SSH_HOST",
     };
   }
   if (!HOST_RE.test(host)) {

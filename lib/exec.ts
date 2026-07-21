@@ -21,6 +21,10 @@ const ALLOWED = new Set(["docker", "git", "ssh"]);
 
 let cachedCloudContainer: string | null = null;
 
+export function clearCloudContainerCache() {
+  cachedCloudContainer = null;
+}
+
 function truncate(s: string, max = 200_000): string {
   if (s.length <= max) return s;
   return `${s.slice(0, max)}\n…[truncated]`;

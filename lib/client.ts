@@ -203,3 +203,50 @@ export async function runManual(body: Record<string, unknown>) {
   });
   return parseJson<{ ok: boolean; async?: boolean; jobId?: string; error?: string }>(res);
 }
+
+export async function fetchSettings() {
+  const res = await fetch("/api/settings");
+  return parseJson<{
+    settings: {
+      doSshHost: string;
+      doSshUser: string;
+      doSshPort: number;
+      doSshKeyPath: string;
+      doBackendContainer: string;
+      doDbRootPasswordSet: boolean;
+      localDbRootPasswordSet: boolean;
+      source: Record<string, string>;
+    };
+    sshReady: boolean;
+    sshError?: string;
+  }>(res);
+}
+
+export async function saveSettings(body: {
+  doSshHost: string;
+  doSshUser: string;
+  doSshPort: number;
+  doSshKeyPath: string;
+  doBackendContainer?: string;
+  doDbRootPassword?: string;
+  localDbRootPassword?: string;
+}) {
+  const res = await fetch("/api/settings", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return parseJson<{
+    ok: boolean;
+    settings: {
+      doSshHost: string;
+      doSshUser: string;
+      doSshPort: number;
+      doSshKeyPath: string;
+      doBackendContainer: string;
+      source: Record<string, string>;
+    };
+    sshReady: boolean;
+    sshError?: string;
+  }>(res);
+}
