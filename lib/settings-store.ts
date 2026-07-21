@@ -29,8 +29,24 @@ export const DEFAULT_DO_SSH_PORT = 22;
 export const DEFAULT_DO_SITE = "erp.zatgo.online";
 export const DEFAULT_DO_DESK_URL = "https://erp.zatgo.online";
 
+function isServerlessReadonlyFs(): boolean {
+  return Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+}
+
+/** Local: `<cwd>/data/settings.json`. Serverless: `/tmp/...` (ephemeral) or refuse writes. */
 function settingsPath(): string {
+  if (isServerlessReadonlyFs()) {
+    return path.join(os.tmpdir(), "zatgo-bench-manager", "settings.json");
+  }
   return path.join(process.cwd(), "data", "settings.json");
+}
+
+export function assertSettingsWritable(): void {
+  if (isServerlessReadonlyFs()) {
+    throw new Error(
+      "Settings cannot be saved on Vercel (read-only filesystem). Use http://localhost:3008 for Cloud setup, or set DO_SSH_* in Vercel Environment Variables.",
+    );
+  }
 }
 
 export function readStoredSettings(): StoredSettings {
@@ -46,6 +62,7 @@ export function readStoredSettings(): StoredSettings {
 }
 
 export function writeStoredSettings(next: StoredSettings): StoredSettings {
+  assertSettingsWritable();
   const file = settingsPath();
   const dir = path.dirname(file);
   if (!fs.existsSync(dir)) {

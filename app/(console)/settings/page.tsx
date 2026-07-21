@@ -137,7 +137,7 @@ export default function SettingsPage() {
     <div>
       <PageHeader
         title="Settings"
-        description="Production cloud setup: choose a provider, enter droplet Public IPv4 and SSH details, then test the connection."
+        description="Production cloud setup: choose a provider, enter droplet Public IPv4 and SSH details, then test the connection. Persist only works on localhost — not on Vercel."
       />
 
       {sshReady === false ? (
