@@ -34,9 +34,16 @@ export function EnvSwitcher() {
           const settings = await fetchSettings();
           label = cloudProviderLabel(settings.settings.cloudProvider);
           setCloudLabel(label);
+          if (settings.hosted) {
+            toast.error(
+              "Cloud SSH only works on http://localhost:3008 — bench.zatgo.online cannot use your keys.",
+            );
+            return;
+          }
           if (!settings.sshReady) {
             toast.error(
-              `Complete Cloud setup in Settings (${label} Public IP + SSH) first`,
+              settings.sshError ||
+                `Complete Cloud setup in Settings (${label} Public IP + SSH) first`,
             );
             return;
           }

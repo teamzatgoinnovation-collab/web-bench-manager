@@ -34,7 +34,19 @@ export const DEFAULT_DO_SITE = "erp.zatgo.online";
 export const DEFAULT_DO_DESK_URL = "https://erp.zatgo.online";
 
 function isServerlessReadonlyFs(): boolean {
-  return Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+  // Real serverless runtimes only — not local `next dev` with Vercel CLI env pull.
+  if (process.env.AWS_LAMBDA_FUNCTION_NAME) return true;
+  if (process.env.VERCEL_REGION) return true;
+  if (
+    process.env.VERCEL === "1" &&
+    process.env.VERCEL_ENV &&
+    process.env.VERCEL_ENV !== "development"
+  ) {
+    return true;
+  }
+  // Vercel Lambda cwd
+  if (process.cwd().startsWith("/var/task")) return true;
+  return false;
 }
 
 export function isHostedOpsUi(): boolean {
