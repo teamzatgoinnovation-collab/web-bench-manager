@@ -10,7 +10,7 @@ export async function GET(
 
   const { id } = await context.params;
   if (id === "recent") {
-    return NextResponse.json({ jobs: listRecentJobs(10) });
+    return NextResponse.json({ jobs: listRecentJobs(50) });
   }
   const job = getJob(id);
   if (!job) {

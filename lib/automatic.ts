@@ -9,7 +9,7 @@ import {
   redactSecrets,
   refreshSite,
 } from "./bench";
-import { appendLog, createJob, setJobStatus } from "./jobs";
+import { appendLog, createJob, finishStage, setJobStatus, startStage } from "./jobs";
 
 export type AutomaticAction =
   | "list-apps"
@@ -76,7 +76,7 @@ export function startAutomaticJob(opts: {
   site: string;
   package?: string;
 }): string {
-  const job = createJob(`automatic:${opts.action}`);
+  const job = createJob(`automatic:${opts.action}`, { env: opts.env, site: opts.site });
   const jobId = job.id;
 
   void (async () => {
@@ -84,11 +84,20 @@ export function startAutomaticJob(opts: {
     const log = (line: string) => appendLog(jobId, redactSecrets(line));
     try {
       log(`Automatic ${opts.action} · env=${opts.env} · site=${opts.site}`);
+      startStage(jobId, "run", opts.action);
       const out = await runAutomaticSync(opts);
       log(out.result.stdout || "");
       if (out.result.stderr) log(out.result.stderr);
-      if (!out.ok) throw new Error(out.result.stderr || `${opts.action} failed`);
-      log(`apps: ${(out.apps || []).join(", ")}`);
+      if (!out.ok) {
+        finishStage(jobId, "run", "failed");
+        throw new Error(out.result.stderr || `${opts.action} failed`);
+      }
+      finishStage(jobId, "run", "succeeded");
+      if (opts.action !== "list-apps") {
+        startStage(jobId, "refresh", "refresh");
+        log(`apps: ${(out.apps || []).join(", ")}`);
+        finishStage(jobId, "refresh", "succeeded");
+      }
       setJobStatus(jobId, "succeeded", { result: out });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

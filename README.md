@@ -1,12 +1,25 @@
 # bench-manager
 
-**Status:** Runnable local ops console  
+**Status:** Runnable local ops console (Frappe Cloud–style IA)  
 **Kind:** Next.js  
 **Package:** `@zatgo/bench-manager`  
 **Port:** 3008  
 **Stack:** [FRONTEND_STACK](../../../Docs/Foundation/FRONTEND_STACK.md)
 
-Local-only UI for Frappe/ERPNext benches: **Local** (host `docker exec`) vs **Cloud** (SSH → remote `docker exec` on DigitalOcean, Hetzner, Azure, or AWS), sites, Automatic/Manual bench commands, and CustomApps deploy pipeline.
+Local-only UI for Frappe/ERPNext benches: **Local** (host `docker exec`) vs **Cloud** (SSH → remote `docker exec` on DigitalOcean, Hetzner, Azure, or AWS). Console layout mirrors Frappe Cloud (Sites → site detail, Bench updates, Jobs with stages) while staying a privileged localhost ops tool — not a public SaaS.
+
+## Console map
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Dashboard — env health, updates banner, quick actions, recent jobs |
+| `/sites` | Sites list + **New site** |
+| `/sites/[site]` | Site detail tabs: Overview · Apps · Backups · Actions |
+| `/bench` | Bench identity, catalog update banner, selective deploy |
+| `/jobs` · `/jobs/[id]` | Job history with stage timeline + log |
+| `/settings` | Cloud SSH provider setup |
+
+Legacy paths redirect: `/automatic` & `/manual` → site Actions; `/apps` & `/deploy` → `/bench`.
 
 ## Security
 
@@ -70,18 +83,21 @@ DO_SSH_KEY_PATH=/home/YOU/.ssh/id_ed25519
 # DO_BACKEND_CONTAINER=frappe_docker-backend-1
 # DO_DEFAULT_SITE=erp.zatgo.online
 # DO_DESK_URL=https://erp.zatgo.online
-# DO_DB_ROOT_PASSWORD=…   # Manual → new-site on cloud
-# LOCAL_DB_ROOT_PASSWORD=…  # Local → new-site
+# DO_DB_ROOT_PASSWORD=…   # Sites → New site on cloud
+# LOCAL_DB_ROOT_PASSWORD=…  # Sites → New site on Local
 ```
 
 (`DO_SSH_*` names are historical; they apply to any SSH cloud host.)
-## Commands
 
-**Automatic** (`/automatic`): list-apps, migrate, clear-cache, clear-website-cache, build --app — then refresh.
+## Site & bench ops
 
-**Manual** (`/manual`): new-site, install-app, uninstall-app (confirm), set-admin-password, backup, restore (confirm), drop-site (type site name).
+**Site → Actions / Overview:** list-apps, migrate, clear-cache, clear-website-cache, build --app, set-admin-password, drop-site (confirm).
 
-**Deploy**: push clean remotes → pull/get-app → install → migrate → clear-cache.
+**Site → Apps:** install from catalog, uninstall + Desktop Icon purge.
+
+**Site → Backups:** list `private/backups`, backup (`--with-files`), restore (confirm; absolute path under `/home/frappe/` or `/tmp/`).
+
+**Bench:** catalog dirty/ahead banner → selective deploy (push → pull/get-app → install → migrate → clear-cache) with staged jobs.
 
 ## Scripts
 

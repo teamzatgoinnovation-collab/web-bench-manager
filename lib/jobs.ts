@@ -2,6 +2,21 @@ import { randomUUID } from "node:crypto";
 
 export type JobStatus = "queued" | "running" | "succeeded" | "failed";
 
+export type JobStageStatus = "pending" | "running" | "succeeded" | "failed" | "skipped";
+
+export type JobStage = {
+  id: string;
+  label: string;
+  status: JobStageStatus;
+  startedAt?: number;
+  finishedAt?: number;
+};
+
+export type JobMeta = {
+  env?: string;
+  site?: string;
+};
+
 export type Job = {
   id: string;
   kind: string;
@@ -9,6 +24,8 @@ export type Job = {
   createdAt: number;
   updatedAt: number;
   log: string[];
+  stages: JobStage[];
+  meta?: JobMeta;
   error?: string;
   result?: unknown;
 };
@@ -16,6 +33,10 @@ export type Job = {
 const jobs = new Map<string, Job>();
 const MAX_JOBS = 50;
 const MAX_LOG_LINES = 5000;
+
+function touch(job: Job) {
+  job.updatedAt = Date.now();
+}
 
 function trimJobs() {
   if (jobs.size <= MAX_JOBS) return;
@@ -26,7 +47,7 @@ function trimJobs() {
   }
 }
 
-export function createJob(kind: string): Job {
+export function createJob(kind: string, meta?: JobMeta): Job {
   const job: Job = {
     id: randomUUID(),
     kind,
@@ -34,6 +55,8 @@ export function createJob(kind: string): Job {
     createdAt: Date.now(),
     updatedAt: Date.now(),
     log: [],
+    stages: [],
+    meta,
   };
   jobs.set(job.id, job);
   trimJobs();
@@ -42,6 +65,13 @@ export function createJob(kind: string): Job {
 
 export function getJob(id: string): Job | undefined {
   return jobs.get(id);
+}
+
+export function setJobMeta(id: string, meta: JobMeta) {
+  const job = jobs.get(id);
+  if (!job) return;
+  job.meta = { ...job.meta, ...meta };
+  touch(job);
 }
 
 export function appendLog(id: string, line: string) {
@@ -54,18 +84,60 @@ export function appendLog(id: string, line: string) {
   if (job.log.length > MAX_LOG_LINES) {
     job.log = job.log.slice(-MAX_LOG_LINES);
   }
-  job.updatedAt = Date.now();
+  touch(job);
+}
+
+export function startStage(id: string, stageId: string, label: string) {
+  const job = jobs.get(id);
+  if (!job) return;
+  const existing = job.stages.find((s) => s.id === stageId);
+  if (existing) {
+    existing.label = label;
+    existing.status = "running";
+    existing.startedAt = Date.now();
+    existing.finishedAt = undefined;
+  } else {
+    job.stages.push({
+      id: stageId,
+      label,
+      status: "running",
+      startedAt: Date.now(),
+    });
+  }
+  touch(job);
+}
+
+export function finishStage(
+  id: string,
+  stageId: string,
+  status: Extract<JobStageStatus, "succeeded" | "failed" | "skipped">,
+) {
+  const job = jobs.get(id);
+  if (!job) return;
+  const stage = job.stages.find((s) => s.id === stageId);
+  if (!stage) {
+    job.stages.push({
+      id: stageId,
+      label: stageId,
+      status,
+      finishedAt: Date.now(),
+    });
+  } else {
+    stage.status = status;
+    stage.finishedAt = Date.now();
+  }
+  touch(job);
 }
 
 export function setJobStatus(id: string, status: JobStatus, extra?: { error?: string; result?: unknown }) {
   const job = jobs.get(id);
   if (!job) return;
   job.status = status;
-  job.updatedAt = Date.now();
+  touch(job);
   if (extra?.error !== undefined) job.error = extra.error;
   if (extra?.result !== undefined) job.result = extra.result;
 }
 
-export function listRecentJobs(limit = 10): Job[] {
+export function listRecentJobs(limit = 50): Job[] {
   return [...jobs.values()].sort((a, b) => b.createdAt - a.createdAt).slice(0, limit);
 }

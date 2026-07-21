@@ -16,7 +16,7 @@ import {
   setAdminPassword,
   uninstallApp,
 } from "./bench";
-import { appendLog, createJob, setJobStatus } from "./jobs";
+import { appendLog, createJob, finishStage, setJobStatus, startStage } from "./jobs";
 
 export type ManualAction =
   | "new-site"
@@ -54,7 +54,7 @@ export type ManualPayload = {
 };
 
 export function startManualJob(payload: ManualPayload): string {
-  const job = createJob(`manual:${payload.action}`);
+  const job = createJob(`manual:${payload.action}`, { env: payload.env, site: payload.site });
   const jobId = job.id;
 
   void (async () => {
@@ -62,8 +62,13 @@ export function startManualJob(payload: ManualPayload): string {
     const log = (line: string) => appendLog(jobId, redactSecrets(line));
     try {
       log(`Manual ${payload.action} · env=${payload.env} · site=${payload.site}`);
-      const out = await runManual(payload, log);
-      if (!out.ok) throw new Error(out.error || `${payload.action} failed`);
+      startStage(jobId, "run", payload.action);
+      const out = await runManual(payload, log, jobId);
+      if (!out.ok) {
+        finishStage(jobId, "run", "failed");
+        throw new Error(out.error || `${payload.action} failed`);
+      }
+      finishStage(jobId, "run", "succeeded");
       log("Done.");
       setJobStatus(jobId, "succeeded", { result: out });
     } catch (err) {
@@ -79,6 +84,7 @@ export function startManualJob(payload: ManualPayload): string {
 async function runManual(
   payload: ManualPayload,
   log: (line: string) => void,
+  jobId: string,
 ): Promise<{ ok: boolean; error?: string; apps?: string[]; sitesHint?: string }> {
   const env = payload.env;
   const site = payload.site ? assertSiteName(payload.site) : "";
@@ -128,8 +134,10 @@ async function runManual(
       log(`uninstall-app ${pkg}`);
       const result = await uninstallApp(env, site, pkg);
       log(result.stdout || result.stderr);
+      startStage(jobId, "purge", "purge Desktop Icons");
       const purge = await purgeDesktopIcons(env, site, pkg);
       log(purge.stdout || purge.stderr);
+      finishStage(jobId, "purge", purge.ok ? "succeeded" : "failed");
       const refresh = await refreshSite(env, site);
       return {
         ok: result.ok,

@@ -4,16 +4,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
-import { Button, cn } from "@zatgo/ui";
+import { Badge, Button, cn } from "@zatgo/ui";
 import {
   Database,
   LayoutDashboard,
   Layers,
   Moon,
-  Package,
-  Play,
+  ScrollText,
   Settings,
-  SquareMenu,
   Sun,
 } from "@zatgo/icons";
 import { toast } from "sonner";
@@ -25,10 +23,8 @@ import { useSessionStore } from "@/store/session";
 const nav = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
   { href: "/sites", label: "Sites", icon: Database },
-  { href: "/apps", label: "Apps", icon: Package },
-  { href: "/automatic", label: "Automatic", icon: Play },
-  { href: "/manual", label: "Manual", icon: SquareMenu },
-  { href: "/deploy", label: "Deploy", icon: Layers },
+  { href: "/bench", label: "Bench", icon: Layers },
+  { href: "/jobs", label: "Jobs", icon: ScrollText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -87,7 +83,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
             ZatGo
           </p>
-          <p className="text-lg font-semibold">Bench Manager</p>
+          <p className="text-lg font-semibold leading-tight">Bench Manager</p>
+          <Badge variant="outline" className="mt-2">
+            {envDisplayName(env, cloudLabel)}
+          </Badge>
         </div>
         <nav className="flex flex-1 flex-col gap-0.5 p-2">
           {nav.map((item) => {
@@ -113,10 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="space-y-1 border-t border-[var(--color-border)] p-3 text-xs text-[var(--color-muted-foreground)]">
-          <p className="font-medium text-[var(--color-foreground)]">
-            {envDisplayName(env, cloudLabel)}
-          </p>
-          <p className="truncate" title={site}>
+          <p className="truncate font-medium text-[var(--color-foreground)]" title={site}>
             {site}
           </p>
           <p>localhost:3008</p>

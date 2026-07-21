@@ -156,6 +156,14 @@ export async function fetchJob(id: string) {
       error?: string;
       createdAt: number;
       updatedAt: number;
+      stages?: Array<{
+        id: string;
+        label: string;
+        status: string;
+        startedAt?: number;
+        finishedAt?: number;
+      }>;
+      meta?: { env?: string; site?: string };
     };
   }>(res);
 }
@@ -170,6 +178,8 @@ export async function fetchRecentJobs() {
       log: string[];
       error?: string;
       createdAt: number;
+      stages?: Array<{ id: string; label: string; status: string }>;
+      meta?: { env?: string; site?: string };
     }>;
   }>(res);
 }
@@ -270,5 +280,60 @@ export async function testCloudConnection() {
     container?: string;
     running?: boolean;
     error?: string;
+  }>(res);
+}
+
+export async function fetchSiteOverview(env: EnvKey, site: string) {
+  const res = await fetch(
+    `/api/sites/${encodeURIComponent(site)}?env=${encodeURIComponent(env)}`,
+  );
+  return parseJson<{
+    env: EnvKey;
+    site: string;
+    exists: boolean;
+    apps: string[];
+    appCount: number;
+    lastBackup: { name: string; path: string; size: string } | null;
+    backupCount: number;
+    deskUrl: string;
+    health: {
+      running: boolean;
+      container: string;
+      transport?: string;
+      sshHostRedacted?: string;
+      sshError?: string;
+    };
+    recentJobs: Array<{ id: string; kind: string; status: string; createdAt: number }>;
+    docker: { ok: boolean; stderr: string };
+  }>(res);
+}
+
+export async function fetchSiteBackups(env: EnvKey, site: string) {
+  const res = await fetch(
+    `/api/sites/${encodeURIComponent(site)}/backups?env=${encodeURIComponent(env)}`,
+  );
+  return parseJson<{
+    env: EnvKey;
+    site: string;
+    backups: Array<{ name: string; path: string; size: string }>;
+    docker: { ok: boolean; stderr: string; command: string };
+  }>(res);
+}
+
+export async function fetchBench(env: EnvKey) {
+  const res = await fetch(`/api/bench?env=${encodeURIComponent(env)}`);
+  return parseJson<{
+    env: EnvKey;
+    sites: string[];
+    siteCount: number;
+    appsOnDisk: string[];
+    health: {
+      running: boolean;
+      container: string;
+      transport?: string;
+      sshHostRedacted?: string;
+      sshError?: string;
+    };
+    docker: { ok: boolean; stderr: string };
   }>(res);
 }

@@ -140,6 +140,66 @@ export async function setAdminPassword(
   });
 }
 
+export type BackupFile = {
+  name: string;
+  path: string;
+  size: string;
+};
+
+export async function listBackups(
+  env: EnvKey,
+  site: string,
+): Promise<{ backups: BackupFile[]; result: RunResult }> {
+  const s = assertSiteName(site);
+  const relativeDir = `sites/${s}/private/backups`;
+  const result = await runOnBench(env, [
+    "bash",
+    "-lc",
+    [
+      `dir=${JSON.stringify(relativeDir)}`,
+      `if [ ! -d "$dir" ]; then exit 0; fi`,
+      `abs=$(cd "$dir" && pwd)`,
+      `for f in "$abs"/*; do`,
+      `  [ -e "$f" ] || continue`,
+      `  [ -f "$f" ] || continue`,
+      `  name=$(basename "$f")`,
+      `  size=$(ls -lh "$f" | awk '{print $5}')`,
+      `  printf '%s\\t%s\\t%s\\n' "$size" "$f" "$name"`,
+      `done`,
+    ].join("; "),
+  ]);
+  if (!result.ok) {
+    return { backups: [], result };
+  }
+  const backups: BackupFile[] = [];
+  for (const line of result.stdout.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const [size, path, ...nameParts] = trimmed.split("\t");
+    const name = nameParts.join("\t");
+    if (!path || !name) continue;
+    if (name.includes("..") || name.includes("/")) continue;
+    if (!path.startsWith("/home/frappe/") && !path.startsWith("/tmp/")) continue;
+    backups.push({ name, path, size: size || "" });
+  }
+  backups.sort((a, b) => b.name.localeCompare(a.name));
+  return { backups, result };
+}
+
+export async function listBenchAppDirs(
+  env: EnvKey,
+): Promise<{ apps: string[]; result: RunResult }> {
+  const result = await runOnBench(env, ["ls", "-1", "apps"]);
+  if (!result.ok) {
+    return { apps: [], result };
+  }
+  const apps = result.stdout
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && /^[a-z][a-z0-9_]*$/i.test(l));
+  return { apps: [...new Set(apps)], result };
+}
+
 export async function backupSite(
   env: EnvKey,
   site: string,
