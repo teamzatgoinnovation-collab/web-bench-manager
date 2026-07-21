@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 const OPTIONS: { key: EnvKey; label: string }[] = [
   { key: "local", label: "Local" },
-  { key: "cloud", label: "Cloud" },
+  { key: "cloud", label: "DigitalOcean" },
 ];
 
 export function EnvSwitcher() {

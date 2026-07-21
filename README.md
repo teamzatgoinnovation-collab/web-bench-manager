@@ -6,46 +6,51 @@
 **Port:** 3008  
 **Stack:** [FRONTEND_STACK](../../../Docs/Foundation/FRONTEND_STACK.md)
 
-Local-only UI to manage Frappe/ERPNext **benches** (Local vs Cloud), **sites**, and a CustomApps **deploy pipeline** (git push → bench pull/get-app → install → migrate → clear-cache).
+Local-only UI for Frappe/ERPNext benches: **Local** (host `docker exec`) vs **DigitalOcean** (SSH → remote `docker exec`), sites, Automatic/Manual bench commands, and CustomApps deploy pipeline.
 
 ## Security
 
 - Requires `BENCH_MANAGER_TOKEN` (httpOnly cookie after login).
-- **Never expose publicly** — API routes run `docker exec` and `git push` on the host.
-- Bind to localhost; do not put this behind a public reverse proxy without additional controls.
+- **Never expose publicly** — API routes run `docker` / `ssh` / `git push` on the host.
+- SSH private key path must be absolute under `$HOME/.ssh/`. Prefer ssh-agent if the key has a passphrase (`BatchMode=yes` needs an unlocked agent or passphrase-less key).
 
 ## Run
-
-From the workspace root:
 
 ```bash
 pnpm install
 cp Clients/web/bench-manager/.env.example Clients/web/bench-manager/.env.local
+# edit .env.local — especially DO_SSH_* for DigitalOcean
 pnpm dev:bench-manager
 ```
 
 Open [http://localhost:3008](http://localhost:3008). Dev token with `ALLOW_INSECURE_DEV_TOKEN=1`: `dev-bench-manager-token`.
 
-Optional:
-
-```bash
-WORKSPACE_ROOT=/absolute/path/to/WorkSpace \
-BENCH_MANAGER_TOKEN=… \
-pnpm --filter @zatgo/bench-manager dev
-```
-
 ## Environments
 
-| Env | Backend container | Default site |
-|-----|-------------------|--------------|
-| Local | `erpnext-backend-1` | `erp.zatgo.online` |
-| Cloud | `frappe_docker-backend-1` | `erp.zatgo.online` |
+| Env key | UI label | Transport | Default site |
+|---------|----------|-----------|--------------|
+| `local` | Local | `docker exec erpnext-backend-1` | `erp.zatgo.online` |
+| `cloud` | DigitalOcean | SSH then `docker exec` (discover `*backend*`) | `erp.zatgo.online` |
 
-## Deploy pipeline
+### DigitalOcean `.env.local`
 
-1. Select catalog apps (ZatGo Core, Tracker, Chat AI)
-2. Working trees must be **clean**; only existing commits are pushed (`git push -u origin HEAD`)
-3. On bench: `git pull` or `get-app` → `install-app` if needed → `migrate` → `clear-cache` → `list-apps`
+```bash
+DO_SSH_HOST=your.droplet.ip.or.host
+DO_SSH_USER=root
+DO_SSH_PORT=22
+DO_SSH_KEY_PATH=/home/YOU/.ssh/id_ed25519
+# DO_BACKEND_CONTAINER=frappe_docker-backend-1
+# DO_DB_ROOT_PASSWORD=…   # Manual → new-site
+# LOCAL_DB_ROOT_PASSWORD=…  # Local → new-site
+```
+
+## Commands
+
+**Automatic** (`/automatic`): list-apps, migrate, clear-cache, clear-website-cache, build --app — then refresh.
+
+**Manual** (`/manual`): new-site, install-app, uninstall-app (confirm), set-admin-password, backup, restore (confirm), drop-site (type site name).
+
+**Deploy**: push clean remotes → pull/get-app → install → migrate → clear-cache.
 
 ## Scripts
 

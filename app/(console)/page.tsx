@@ -11,7 +11,13 @@ export default function DashboardPage() {
   const env = useSessionStore((s) => s.env);
   const site = useSessionStore((s) => s.site);
   const [health, setHealth] = useState<
-    Array<{ env: string; container: string; running: boolean }>
+    Array<{
+      env: string;
+      container: string;
+      running: boolean;
+      sshHostRedacted?: string;
+      sshError?: string;
+    }>
   >([]);
   const [sites, setSites] = useState<string[]>([]);
   const [apps, setApps] = useState<string[]>([]);
@@ -72,9 +78,13 @@ export default function DashboardPage() {
           description={local?.container}
         />
         <StatCard
-          title="Cloud backend"
+          title="DigitalOcean"
           value={cloud?.running ? "Running" : "Down"}
-          description={cloud?.container}
+          description={
+            cloud?.sshHostRedacted
+              ? `${cloud.container} · ${cloud.sshHostRedacted}`
+              : cloud?.container
+          }
         />
         <StatCard title="Installed apps" value={String(apps.length)} description={site} />
       </div>

@@ -11,7 +11,9 @@ import {
   Layers,
   Moon,
   Package,
+  Play,
   Settings,
+  SquareMenu,
   Sun,
 } from "@zatgo/icons";
 import { toast } from "sonner";
@@ -23,6 +25,8 @@ const nav = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
   { href: "/sites", label: "Sites", icon: Database },
   { href: "/apps", label: "Apps", icon: Package },
+  { href: "/automatic", label: "Automatic", icon: Play },
+  { href: "/manual", label: "Manual", icon: SquareMenu },
   { href: "/deploy", label: "Deploy", icon: Layers },
 ];
 
@@ -106,7 +110,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="space-y-1 border-t border-[var(--color-border)] p-3 text-xs text-[var(--color-muted-foreground)]">
-          <p className="font-medium text-[var(--color-foreground)]">{env}</p>
+          <p className="font-medium text-[var(--color-foreground)]">
+            {env === "cloud" ? "DigitalOcean" : "Local"}
+          </p>
           <p className="truncate" title={site}>
             {site}
           </p>

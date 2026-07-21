@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { isAuthenticated, requireAuthResponse } from "@/lib/auth";
 import { ENV_PRESETS, type EnvKey } from "@/lib/config";
 import { envHealth } from "@/lib/bench";
+import { isDoSshConfigured } from "@/lib/ssh-config";
 
 export async function GET() {
   if (!(await isAuthenticated())) return requireAuthResponse();
@@ -12,5 +13,8 @@ export async function GET() {
   return NextResponse.json({
     presets: keys.map((k) => ENV_PRESETS[k]),
     health,
+    digitalOcean: {
+      sshConfigured: isDoSshConfigured(),
+    },
   });
 }

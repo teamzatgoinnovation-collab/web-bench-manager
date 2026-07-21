@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, Checkbox, PageHeader } from "@zatgo/ui";
 import { toast } from "sonner";
+import { DoSshBanner } from "@/components/DoSshBanner";
 import { JobLog } from "@/components/JobLog";
 import { fetchCatalog, fetchJob, startDeploy } from "@/lib/client";
 import { useSessionStore } from "@/store/session";
@@ -107,7 +108,7 @@ export default function DeployPage() {
     <div>
       <PageHeader
         title="Deploy"
-        description={`Push WorkSpace remotes (clean + ahead only), then pull/get-app → install → migrate → clear-cache on ${site} (${env}).`}
+        description={`Push WorkSpace remotes (clean + ahead only), then pull/get-app → install → migrate → clear-cache on ${site} (${env === "cloud" ? "DigitalOcean" : "Local"}).`}
         actions={
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => void load()} disabled={busy}>
@@ -119,6 +120,8 @@ export default function DeployPage() {
           </div>
         }
       />
+
+      <DoSshBanner />
 
       <div className="mb-6 space-y-3">
         {catalog.map((app) => {

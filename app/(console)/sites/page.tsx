@@ -45,7 +45,7 @@ export default function SitesPage() {
     <div>
       <PageHeader
         title="Sites"
-        description={`Sites on the ${env} bench. Default policy site is erp.zatgo.online.`}
+        description={`Sites on the ${env === "cloud" ? "DigitalOcean" : "Local"} bench. Default policy site is erp.zatgo.online.`}
         actions={
           <Button variant="outline" onClick={() => void load()} disabled={loading}>
             Refresh

@@ -20,7 +20,7 @@ export const ENV_PRESETS: Record<EnvKey, EnvPreset> = {
   },
   cloud: {
     key: "cloud",
-    label: "Cloud",
+    label: "DigitalOcean",
     backendContainer: "frappe_docker-backend-1",
     defaultSite: DEFAULT_SITE,
     deskHint: "https://erp.zatgo.online",

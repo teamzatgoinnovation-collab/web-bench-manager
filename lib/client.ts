@@ -63,7 +63,17 @@ export async function fetchEnv() {
       defaultSite: string;
       deskHint: string;
     }>;
-    health: Array<{ env: EnvKey; container: string; running: boolean }>;
+    health: Array<{
+      env: EnvKey;
+      label?: string;
+      container: string;
+      running: boolean;
+      transport?: "docker" | "ssh";
+      sshConfigured?: boolean;
+      sshHostRedacted?: string;
+      sshError?: string;
+    }>;
+    digitalOcean?: { sshConfigured: boolean };
   }>(res);
 }
 
@@ -162,4 +172,34 @@ export async function fetchRecentJobs() {
       createdAt: number;
     }>;
   }>(res);
+}
+
+export async function runAutomatic(body: {
+  action: string;
+  env: EnvKey;
+  site: string;
+  package?: string;
+}) {
+  const res = await fetch("/api/bench/automatic", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return parseJson<{
+    ok: boolean;
+    async?: boolean;
+    jobId?: string;
+    apps?: string[];
+    result?: { stdout?: string; stderr?: string; command?: string };
+    error?: string;
+  }>(res);
+}
+
+export async function runManual(body: Record<string, unknown>) {
+  const res = await fetch("/api/bench/manual", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return parseJson<{ ok: boolean; async?: boolean; jobId?: string; error?: string }>(res);
 }
