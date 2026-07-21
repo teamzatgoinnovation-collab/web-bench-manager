@@ -204,7 +204,7 @@ export async function newSite(
       stdout: "",
       stderr:
         env === "cloud"
-          ? "Set DO_DB_ROOT_PASSWORD for new-site on DigitalOcean"
+          ? "Set DO_DB_ROOT_PASSWORD for new-site on cloud"
           : "Set LOCAL_DB_ROOT_PASSWORD for new-site on Local",
       command: "bench new-site",
     };

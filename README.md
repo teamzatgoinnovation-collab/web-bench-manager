@@ -6,7 +6,7 @@
 **Port:** 3008  
 **Stack:** [FRONTEND_STACK](../../../Docs/Foundation/FRONTEND_STACK.md)
 
-Local-only UI for Frappe/ERPNext benches: **Local** (host `docker exec`) vs **DigitalOcean** (SSH → remote `docker exec`), sites, Automatic/Manual bench commands, and CustomApps deploy pipeline.
+Local-only UI for Frappe/ERPNext benches: **Local** (host `docker exec`) vs **Cloud** (SSH → remote `docker exec` on DigitalOcean, Hetzner, Azure, or AWS), sites, Automatic/Manual bench commands, and CustomApps deploy pipeline.
 
 ## Security
 
@@ -19,7 +19,7 @@ Local-only UI for Frappe/ERPNext benches: **Local** (host `docker exec`) vs **Di
 ```bash
 pnpm install
 cp Clients/web/bench-manager/.env.example Clients/web/bench-manager/.env.local
-# edit .env.local — especially DO_SSH_* for DigitalOcean
+# edit .env.local — especially DO_SSH_* for cloud SSH
 pnpm dev:bench-manager
 ```
 
@@ -30,20 +30,20 @@ Open [http://localhost:3008](http://localhost:3008). Dev token with `ALLOW_INSEC
 | Env key | UI label | Transport | Default site |
 |---------|----------|-----------|--------------|
 | `local` | Local | `docker exec erpnext-backend-1` | `erp.zatgo.online` |
-| `cloud` | DigitalOcean | SSH then `docker exec` (discover `*backend*`) | `erp.zatgo.online` |
+| `cloud` | DigitalOcean / Hetzner / Azure / AWS | SSH then `docker exec` (discover `*backend*`) | `erp.zatgo.online` |
 
 ### Cloud setup (Settings UI)
 
 1. Open **Settings**
-2. Choose **DigitalOcean**
-3. Enter **Droplet Public IPv4** (default `157.230.8.164`), SSH user/port/key path
+2. Choose **DigitalOcean**, **Hetzner**, **Azure**, or **AWS** (same SSH → docker exec transport)
+3. Enter **Public IPv4**, SSH user/port/key path (defaults: DO/Hetzner `root`, Azure `azureuser`, AWS `ubuntu`)
 4. Set production site (`erp.zatgo.online`) and Desk URL
 5. **Test connection**, then **Save**
-6. Switch env to **DigitalOcean** in the header
+6. Switch env to the selected cloud provider in the header
 
 Values persist in `data/settings.json` (gitignored) and override `.env.local`.
 
-### DigitalOcean `.env.local` (fallback)
+### Cloud SSH `.env.local` (fallback)
 
 ```bash
 DO_SSH_HOST=157.230.8.164
@@ -53,10 +53,11 @@ DO_SSH_KEY_PATH=/home/YOU/.ssh/id_ed25519
 # DO_BACKEND_CONTAINER=frappe_docker-backend-1
 # DO_DEFAULT_SITE=erp.zatgo.online
 # DO_DESK_URL=https://erp.zatgo.online
-# DO_DB_ROOT_PASSWORD=…   # Manual → new-site
+# DO_DB_ROOT_PASSWORD=…   # Manual → new-site on cloud
 # LOCAL_DB_ROOT_PASSWORD=…  # Local → new-site
 ```
 
+(`DO_SSH_*` names are historical; they apply to any SSH cloud host.)
 ## Commands
 
 **Automatic** (`/automatic`): list-apps, migrate, clear-cache, clear-website-cache, build --app — then refresh.

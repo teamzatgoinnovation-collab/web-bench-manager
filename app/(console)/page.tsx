@@ -6,6 +6,7 @@ import { Badge, Button, PageHeader, StatCard } from "@zatgo/ui";
 import { toast } from "sonner";
 import { DoSshBanner } from "@/components/DoSshBanner";
 import { fetchApps, fetchEnv, fetchRecentJobs, fetchSettings, fetchSites } from "@/lib/client";
+import { cloudProviderLabel } from "@/lib/cloud-providers";
 import { useSessionStore } from "@/store/session";
 
 export default function DashboardPage() {
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [cloudReady, setCloudReady] = useState<boolean | null>(null);
   const [deskUrl, setDeskUrl] = useState("https://erp.zatgo.online");
+  const [cloudLabel, setCloudLabel] = useState("Cloud");
 
   const load = async () => {
     setLoading(true);
@@ -46,6 +48,7 @@ export default function DashboardPage() {
       if (settings) {
         setCloudReady(settings.sshReady);
         setDeskUrl(settings.settings.doDeskUrl || "https://erp.zatgo.online");
+        setCloudLabel(cloudProviderLabel(settings.settings.cloudProvider));
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load dashboard");
@@ -80,8 +83,8 @@ export default function DashboardPage() {
         <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
           <h2 className="font-medium">Set up production cloud</h2>
           <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
-            Choose DigitalOcean, enter your droplet Public IPv4 and SSH details, then Test
-            connection. Local ops still work without this.
+            Choose DigitalOcean, Hetzner, Azure, or AWS, enter Public IP and SSH details, then
+            Test connection. Local ops still work without this.
           </p>
           <Button className="mt-3" asChild>
             <Link href="/settings">Open Cloud setup</Link>
@@ -92,7 +95,7 @@ export default function DashboardPage() {
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Active env"
-          value={env === "cloud" ? "DigitalOcean" : "Local"}
+          value={env === "cloud" ? cloudLabel : "Local"}
           description={local || cloud ? `site ${site}` : undefined}
         />
         <StatCard
@@ -101,7 +104,7 @@ export default function DashboardPage() {
           description={local?.container}
         />
         <StatCard
-          title="DigitalOcean"
+          title={cloudLabel}
           value={cloud?.running ? "Running" : "Down"}
           description={
             cloud?.sshHostRedacted
@@ -125,7 +128,7 @@ export default function DashboardPage() {
         <section className="rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-medium">
-              Sites on {env === "cloud" ? "DigitalOcean" : "Local"}
+              Sites on {env === "cloud" ? cloudLabel : "Local"}
             </h2>
             <Link href="/sites" className="text-sm text-[var(--color-muted-foreground)] underline">
               Manage

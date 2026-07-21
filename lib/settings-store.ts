@@ -1,8 +1,12 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import {
+  type CloudProvider,
+  isCloudProvider,
+} from "./cloud-providers";
 
-export type CloudProvider = "digitalocean" | "none";
+export type { CloudProvider } from "./cloud-providers";
 
 export type StoredSettings = {
   cloudProvider?: CloudProvider;
@@ -82,10 +86,10 @@ export function sanitizeSettings(input: StoredSettings): StoredSettings {
 
   if (input.cloudProvider !== undefined) {
     const p = String(input.cloudProvider);
-    if (p !== "digitalocean" && p !== "none") {
+    if (!isCloudProvider(p)) {
       throw new Error(`Invalid cloud provider: ${p}`);
     }
-    out.cloudProvider = p as CloudProvider;
+    out.cloudProvider = p;
   }
 
   if (input.doSshHost !== undefined) {
@@ -205,13 +209,12 @@ export function getSettingsFormValues(): SettingsFormValues {
     process.env.DO_DESK_URL?.trim() ||
     DEFAULT_DO_DESK_URL;
 
-  const cloudProvider: CloudProvider =
-    stored.cloudProvider === "digitalocean" ||
-    Boolean(stored.doSshHost || process.env.DO_SSH_HOST?.trim())
-      ? "digitalocean"
-      : stored.cloudProvider === "none"
-        ? "none"
-        : "digitalocean";
+  let cloudProvider: CloudProvider = "digitalocean";
+  if (stored.cloudProvider && isCloudProvider(stored.cloudProvider)) {
+    cloudProvider = stored.cloudProvider;
+  } else if (stored.doSshHost || process.env.DO_SSH_HOST?.trim()) {
+    cloudProvider = "digitalocean";
+  }
 
   return {
     cloudProvider,

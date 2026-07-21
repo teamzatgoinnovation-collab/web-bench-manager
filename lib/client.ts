@@ -208,7 +208,7 @@ export async function fetchSettings() {
   const res = await fetch("/api/settings");
   return parseJson<{
     settings: {
-      cloudProvider: "digitalocean" | "none";
+      cloudProvider: "digitalocean" | "hetzner" | "azure" | "aws" | "none";
       doSshHost: string;
       doSshUser: string;
       doSshPort: number;
@@ -227,7 +227,7 @@ export async function fetchSettings() {
 }
 
 export async function saveSettings(body: {
-  cloudProvider?: "digitalocean" | "none";
+  cloudProvider?: "digitalocean" | "hetzner" | "azure" | "aws" | "none";
   doSshHost: string;
   doSshUser: string;
   doSshPort: number;
@@ -246,7 +246,7 @@ export async function saveSettings(body: {
   return parseJson<{
     ok: boolean;
     settings: {
-      cloudProvider: "digitalocean" | "none";
+      cloudProvider: "digitalocean" | "hetzner" | "azure" | "aws" | "none";
       doSshHost: string;
       doSshUser: string;
       doSshPort: number;

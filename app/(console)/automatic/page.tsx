@@ -6,11 +6,13 @@ import { toast } from "sonner";
 import { DoSshBanner } from "@/components/DoSshBanner";
 import { JobLog } from "@/components/JobLog";
 import { fetchApps, fetchJob, runAutomatic } from "@/lib/client";
+import { useCloudLabel } from "@/lib/use-cloud-label";
 import { useSessionStore } from "@/store/session";
 
 export default function AutomaticPage() {
   const env = useSessionStore((s) => s.env);
   const site = useSessionStore((s) => s.site);
+  const cloudLabel = useCloudLabel();
   const [apps, setApps] = useState<string[]>([]);
   const [buildPkg, setBuildPkg] = useState("");
   const [busy, setBusy] = useState(false);
@@ -95,7 +97,7 @@ export default function AutomaticPage() {
     <div>
       <PageHeader
         title="Automatic"
-        description={`Safe bench refresh ops on ${site} (${env === "cloud" ? "DigitalOcean" : "Local"}). Always refreshes list-apps after mutate.`}
+        description={`Safe bench refresh ops on ${site} (${env === "cloud" ? cloudLabel : "Local"}). Always refreshes list-apps after mutate.`}
       />
       <DoSshBanner />
 

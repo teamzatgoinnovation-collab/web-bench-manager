@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchSettings } from "@/lib/client";
+import { cloudProviderLabel } from "@/lib/cloud-providers";
 import { useSessionStore } from "@/store/session";
 
 export function DoSshBanner() {
@@ -17,14 +18,15 @@ export function DoSshBanner() {
     void (async () => {
       try {
         const data = await fetchSettings();
+        const label = cloudProviderLabel(data.settings.cloudProvider);
         if (!data.sshReady) {
           setMessage(
-            "Complete Cloud setup in Settings: choose DigitalOcean, enter droplet Public IPv4, SSH user/key, then Test connection.",
+            `Complete Cloud setup in Settings: choose ${label}, enter Public IP, SSH user/key, then Test connection.`,
           );
           return;
         }
         const cloudHint = data.settings.doSshHost
-          ? `DigitalOcean ${data.settings.doSshHost}`
+          ? `${label} ${data.settings.doSshHost}`
           : null;
         if (cloudHint && data.sshError) {
           setMessage(`${cloudHint}: ${data.sshError}`);
@@ -32,7 +34,7 @@ export function DoSshBanner() {
         }
         setMessage(null);
       } catch {
-        setMessage("Could not load DigitalOcean health. Open Settings to configure.");
+        setMessage("Could not load cloud SSH health. Open Settings to configure.");
       }
     })();
   }, [env]);

@@ -62,7 +62,7 @@ export function getDoSshConfig(): DoSshConfig | { error: string } {
   if (!host) {
     return {
       error:
-        "DigitalOcean SSH not configured: set host in Settings or DO_SSH_HOST",
+        "Cloud SSH not configured: set host in Settings or DO_SSH_HOST",
     };
   }
   if (!HOST_RE.test(host)) {

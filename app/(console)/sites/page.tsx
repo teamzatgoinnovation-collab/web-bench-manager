@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { Badge, Button, PageHeader, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@zatgo/ui";
 import { toast } from "sonner";
 import { fetchSites, savePrefs } from "@/lib/client";
+import { useCloudLabel } from "@/lib/use-cloud-label";
 import { useSessionStore } from "@/store/session";
 
 export default function SitesPage() {
   const env = useSessionStore((s) => s.env);
   const site = useSessionStore((s) => s.site);
+  const cloudLabel = useCloudLabel();
   const [sites, setSites] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ export default function SitesPage() {
     <div>
       <PageHeader
         title="Sites"
-        description={`Sites on the ${env === "cloud" ? "DigitalOcean" : "Local"} bench. Default policy site is erp.zatgo.online.`}
+        description={`Sites on the ${env === "cloud" ? cloudLabel : "Local"} bench. Default policy site is erp.zatgo.online.`}
         actions={
           <Button variant="outline" onClick={() => void load()} disabled={loading}>
             Refresh

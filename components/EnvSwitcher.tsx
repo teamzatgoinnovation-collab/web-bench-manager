@@ -1,30 +1,42 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button, cn } from "@zatgo/ui";
 import type { EnvKey } from "@/lib/shared";
+import { cloudProviderLabel } from "@/lib/cloud-providers";
 import { useSessionStore } from "@/store/session";
 import { fetchSettings, savePrefs } from "@/lib/client";
 import { toast } from "sonner";
 
-const OPTIONS: { key: EnvKey; label: string }[] = [
-  { key: "local", label: "Local" },
-  { key: "cloud", label: "DigitalOcean" },
-];
-
 export function EnvSwitcher() {
   const env = useSessionStore((s) => s.env);
   const site = useSessionStore((s) => s.site);
+  const [cloudLabel, setCloudLabel] = useState("Cloud");
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const settings = await fetchSettings();
+        setCloudLabel(cloudProviderLabel(settings.settings.cloudProvider));
+      } catch {
+        // keep default
+      }
+    })();
+  }, [env]);
 
   const onSelect = async (next: EnvKey) => {
     if (next === env) return;
     try {
       let nextSite = site;
+      let label = cloudLabel;
       if (next === "cloud") {
         try {
           const settings = await fetchSettings();
+          label = cloudProviderLabel(settings.settings.cloudProvider);
+          setCloudLabel(label);
           if (!settings.sshReady) {
             toast.error(
-              "Complete Cloud setup in Settings (DigitalOcean Public IPv4 + SSH) first",
+              `Complete Cloud setup in Settings (${label} Public IP + SSH) first`,
             );
             return;
           }
@@ -36,7 +48,7 @@ export function EnvSwitcher() {
         }
       }
       await savePrefs({ env: next, site: nextSite });
-      toast.success(next === "cloud" ? "Environment: DigitalOcean" : "Environment: Local");
+      toast.success(next === "cloud" ? `Environment: ${label}` : "Environment: Local");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to switch env");
     }
@@ -44,7 +56,12 @@ export function EnvSwitcher() {
 
   return (
     <div className="inline-flex rounded-[var(--radius-lg)] border border-[var(--color-border)] p-0.5">
-      {OPTIONS.map((opt) => (
+      {(
+        [
+          { key: "local" as const, label: "Local" },
+          { key: "cloud" as const, label: cloudLabel },
+        ] as const
+      ).map((opt) => (
         <button
           key={opt.key}
           type="button"

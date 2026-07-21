@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { EnvSwitcher, SitePicker } from "@/components/EnvSwitcher";
 import { fetchSites, logout } from "@/lib/client";
+import { useCloudLabel, envDisplayName } from "@/lib/use-cloud-label";
 import { useSessionStore } from "@/store/session";
 
 const nav = [
@@ -37,6 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { theme, setTheme } = useTheme();
   const env = useSessionStore((s) => s.env);
   const site = useSessionStore((s) => s.site);
+  const cloudLabel = useCloudLabel();
   const mode = theme ?? "system";
   const [sites, setSites] = useState<string[]>([]);
   const [loadingSites, setLoadingSites] = useState(false);
@@ -112,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="space-y-1 border-t border-[var(--color-border)] p-3 text-xs text-[var(--color-muted-foreground)]">
           <p className="font-medium text-[var(--color-foreground)]">
-            {env === "cloud" ? "DigitalOcean" : "Local"}
+            {envDisplayName(env, cloudLabel)}
           </p>
           <p className="truncate" title={site}>
             {site}

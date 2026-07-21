@@ -179,7 +179,7 @@ export async function discoverCloudContainer(force = false): Promise<{
   const names = list.stdout.split("\n").map((l) => l.trim()).filter(Boolean);
   const picked = pickBackendContainer(names);
   if (!picked) {
-    return { container: null, error: "No backend container found on DigitalOcean droplet" };
+    return { container: null, error: "No backend container found on cloud host" };
   }
   try {
     cachedCloudContainer = assertContainerName(picked);
@@ -204,7 +204,7 @@ export async function resolveBackendContainer(env: EnvKey): Promise<{
   if (!discovered.container) {
     return {
       container: ENV_PRESETS.cloud.backendContainer,
-      error: discovered.error || "DigitalOcean backend container unknown",
+      error: discovered.error || "Cloud backend container unknown",
     };
   }
   return { container: discovered.container };
@@ -242,7 +242,7 @@ export async function runOnBench(
       ok: false,
       code: 1,
       stdout: "",
-      stderr: "error" in cfg ? cfg.error : "DigitalOcean SSH not configured",
+      stderr: "error" in cfg ? cfg.error : "Cloud SSH not configured",
       command: "ssh",
     };
   }
@@ -273,7 +273,7 @@ export async function runRemoteDocker(
       ok: false,
       code: 1,
       stdout: "",
-      stderr: "error" in cfg ? cfg.error : "DigitalOcean SSH not configured",
+      stderr: "error" in cfg ? cfg.error : "Cloud SSH not configured",
       command: "ssh docker",
     };
   }

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { DoSshBanner } from "@/components/DoSshBanner";
 import { JobLog } from "@/components/JobLog";
 import { fetchCatalog, fetchJob, startDeploy } from "@/lib/client";
+import { useCloudLabel } from "@/lib/use-cloud-label";
 import { useSessionStore } from "@/store/session";
 
 type CatalogRow = {
@@ -27,6 +28,7 @@ type CatalogRow = {
 export default function DeployPage() {
   const env = useSessionStore((s) => s.env);
   const site = useSessionStore((s) => s.site);
+  const cloudLabel = useCloudLabel();
   const [catalog, setCatalog] = useState<CatalogRow[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [jobId, setJobId] = useState<string | null>(null);
@@ -108,7 +110,7 @@ export default function DeployPage() {
     <div>
       <PageHeader
         title="Deploy"
-        description={`Push WorkSpace remotes (clean + ahead only), then pull/get-app → install → migrate → clear-cache on ${site} (${env === "cloud" ? "DigitalOcean" : "Local"}).`}
+        description={`Push WorkSpace remotes (clean + ahead only), then pull/get-app → install → migrate → clear-cache on ${site} (${env === "cloud" ? cloudLabel : "Local"}).`}
         actions={
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => void load()} disabled={busy}>
