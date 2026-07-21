@@ -34,6 +34,8 @@ Open [http://localhost:3008](http://localhost:3008). Dev token with `ALLOW_INSEC
 
 ### DigitalOcean `.env.local`
 
+Prefer **Settings** in the app (persists to `data/settings.json`). Env is fallback; default host is **`157.230.8.164`**.
+
 ```bash
 DO_SSH_HOST=157.230.8.164
 DO_SSH_USER=root
