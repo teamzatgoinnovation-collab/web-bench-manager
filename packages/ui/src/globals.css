@@ -1,0 +1,22 @@
+@import "@zatgo/config/tailwind/preset.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+/* cmdk dialog portal root */
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgb(0 0 0 / 0.4);
+}

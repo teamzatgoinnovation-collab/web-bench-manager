@@ -1,0 +1,12 @@
+{
+  "name": "@zatgo/config",
+  "version": "0.1.0",
+  "private": true,
+  "files": ["tsconfig", "tailwind"],
+  "exports": {
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/next.json": "./tsconfig/next.json",
+    "./tsconfig/react-library.json": "./tsconfig/react-library.json",
+    "./tailwind/preset.css": "./tailwind/preset.css"
+  }
+}
