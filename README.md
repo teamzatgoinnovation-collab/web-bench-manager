@@ -35,7 +35,7 @@ Open [http://localhost:3008](http://localhost:3008). Dev token with `ALLOW_INSEC
 ### DigitalOcean `.env.local`
 
 ```bash
-DO_SSH_HOST=your.droplet.ip.or.host
+DO_SSH_HOST=157.230.8.164
 DO_SSH_USER=root
 DO_SSH_PORT=22
 DO_SSH_KEY_PATH=/home/YOU/.ssh/id_ed25519

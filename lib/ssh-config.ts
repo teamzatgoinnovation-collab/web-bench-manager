@@ -20,10 +20,11 @@ export function getLocalDbRootPassword(): string | undefined {
 }
 
 export function getDoSshConfig(): DoSshConfig | { error: string } {
-  const host = process.env.DO_SSH_HOST?.trim() ?? "";
+  const host = process.env.DO_SSH_HOST?.trim() || "157.230.8.164";
   const user = process.env.DO_SSH_USER?.trim() || "root";
   const portRaw = process.env.DO_SSH_PORT?.trim() || "22";
-  const keyPath = process.env.DO_SSH_KEY_PATH?.trim() ?? "";
+  const keyPath =
+    process.env.DO_SSH_KEY_PATH?.trim() || path.join(os.homedir(), ".ssh", "id_ed25519");
   const backendContainer = process.env.DO_BACKEND_CONTAINER?.trim() || undefined;
   const dbRootPassword = process.env.DO_DB_ROOT_PASSWORD?.trim() || undefined;
 
