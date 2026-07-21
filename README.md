@@ -25,6 +25,14 @@ pnpm dev:bench-manager
 
 Open [http://localhost:3008](http://localhost:3008). Dev token with `ALLOW_INSECURE_DEV_TOKEN=1`: `dev-bench-manager-token`.
 
+Desktop shell (Electron, same local ops):
+
+```bash
+pnpm dev:bench-manager-desktop
+```
+
+See [`Clients/desktop/bench-manager-desktop`](../desktop/bench-manager-desktop).
+
 ## Environments
 
 | Env key | UI label | Transport | Default site |
