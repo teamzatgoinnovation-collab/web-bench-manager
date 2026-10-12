@@ -17,7 +17,7 @@ export type RunResult = {
   command: string;
 };
 
-const ALLOWED = new Set(["docker", "git", "ssh"]);
+const ALLOWED = new Set(["docker", "git", "ssh", "scp"]);
 
 let cachedCloudContainer: string | null = null;
 

@@ -20,7 +20,10 @@ export function getWorkspaceRoot(): string {
   if (process.env.WORKSPACE_ROOT) {
     return path.resolve(process.env.WORKSPACE_ROOT);
   }
-  // Clients/web/bench-manager → WorkSpace
+  // Walk up to the ZatGoInnovation workspace (has erpnext/ and flutter/ side by side).
+  for (let d = process.cwd(); d !== path.dirname(d); d = path.dirname(d)) {
+    if (fs.existsSync(path.join(d, "erpnext", "zatgo-core"))) return d;
+  }
   const fromCwd = path.resolve(process.cwd(), "../../..");
   if (fs.existsSync(path.join(fromCwd, "CustomApps")) && fs.existsSync(path.join(fromCwd, "ERPNEXT"))) {
     return fromCwd;

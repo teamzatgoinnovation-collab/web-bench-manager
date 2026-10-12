@@ -23,6 +23,7 @@ import { useSessionStore } from "@/store/session";
 const nav = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
   { href: "/sites", label: "Sites", icon: Database },
+  { href: "/fleet", label: "Hetzner fleet", icon: Layers },
   { href: "/bench", label: "Bench", icon: Layers },
   { href: "/jobs", label: "Jobs", icon: ScrollText },
   { href: "/settings", label: "Settings", icon: Settings },
