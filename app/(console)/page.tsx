@@ -53,7 +53,7 @@ export default function DashboardPage() {
   const [catalog, setCatalog] = useState<CatalogRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [cloudReady, setCloudReady] = useState<boolean | null>(null);
-  const [deskUrl, setDeskUrl] = useState("https://erp.zatgo.online");
+  const [deskUrl, setDeskUrl] = useState("https://accounting.zatgoinnovation.com");
   const [cloudLabel, setCloudLabel] = useState("Cloud");
 
   const load = async () => {
@@ -74,7 +74,7 @@ export default function DashboardPage() {
       setCatalog(cat.catalog);
       if (settings) {
         setCloudReady(settings.sshReady);
-        setDeskUrl(settings.settings.doDeskUrl || "https://erp.zatgo.online");
+        setDeskUrl(settings.settings.doDeskUrl || "https://accounting.zatgoinnovation.com");
         setCloudLabel(cloudProviderLabel(settings.settings.cloudProvider));
       }
     } catch (err) {
@@ -111,7 +111,7 @@ export default function DashboardPage() {
         <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
           <h2 className="font-medium">Set up production cloud</h2>
           <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
-            Choose DigitalOcean, Hetzner, Azure, or AWS, enter Public IP and SSH details, then Test
+            Choose Hetzner, Azure, or AWS, enter Public IP and SSH details, then Test
             connection. Local ops still work without this.
           </p>
           <Button className="mt-3" asChild>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
           </div>
           {sites.includes("frontend") ? (
             <p className="mb-2 text-xs text-amber-600 dark:text-amber-400">
-              Legacy site <code>frontend</code> present — prefer <code>erp.zatgo.online</code>.
+              Legacy site <code>frontend</code> present — prefer <code>accounting.zatgoinnovation.com</code>.
             </p>
           ) : null}
           <ul className="space-y-1 text-sm">

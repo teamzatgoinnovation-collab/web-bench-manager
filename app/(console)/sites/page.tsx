@@ -41,7 +41,7 @@ export default function SitesPage() {
   const [loading, setLoading] = useState(true);
 
   const [newOpen, setNewOpen] = useState(false);
-  const [newSiteName, setNewSiteName] = useState("erp.zatgo.online");
+  const [newSiteName, setNewSiteName] = useState("accounting.zatgoinnovation.com");
   const [adminPassword, setAdminPassword] = useState("");
   const [installErpnext, setInstallErpnext] = useState(true);
   const [setDefault, setSetDefault] = useState(true);
@@ -121,7 +121,7 @@ export default function SitesPage() {
     <div>
       <PageHeader
         title="Sites"
-        description={`Sites on the ${env === "cloud" ? cloudLabel : "Local"} bench. Default policy site is erp.zatgo.online.`}
+        description={`Sites on the ${env === "cloud" ? cloudLabel : "Local"} bench. Default policy site is accounting.zatgoinnovation.com.`}
         actions={
           <div className="flex gap-2">
             <Dialog open={newOpen} onOpenChange={setNewOpen}>
@@ -190,7 +190,7 @@ export default function SitesPage() {
 
       {sites.includes("frontend") ? (
         <p className="mb-4 rounded-[var(--radius-lg)] border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-          Legacy site <strong>frontend</strong> detected. Prefer <code>erp.zatgo.online</code> for
+          Legacy site <strong>frontend</strong> detected. Prefer <code>accounting.zatgoinnovation.com</code> for
           all ops.
         </p>
       ) : null}
@@ -224,7 +224,7 @@ export default function SitesPage() {
                 </TableCell>
                 <TableCell>
                   {s === site ? <Badge>active</Badge> : <Badge variant="secondary">idle</Badge>}
-                  {s === "erp.zatgo.online" ? (
+                  {s === "accounting.zatgoinnovation.com" ? (
                     <Badge variant="outline" className="ml-2">
                       canonical
                     </Badge>

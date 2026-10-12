@@ -23,14 +23,14 @@ export default function SettingsPage() {
   const setPrefs = useSessionStore((s) => s.setPrefs);
   const env = useSessionStore((s) => s.env);
 
-  const [provider, setProvider] = useState<CloudProvider>("digitalocean");
-  const [host, setHost] = useState("157.230.8.164");
+  const [provider, setProvider] = useState<CloudProvider>("hetzner");
+  const [host, setHost] = useState("2.29.17.8");
   const [user, setUser] = useState("root");
   const [port, setPort] = useState("22");
   const [keyPath, setKeyPath] = useState("");
   const [container, setContainer] = useState("");
-  const [defaultSite, setDefaultSite] = useState("erp.zatgo.online");
-  const [deskUrl, setDeskUrl] = useState("https://erp.zatgo.online");
+  const [defaultSite, setDefaultSite] = useState("accounting.zatgoinnovation.com");
+  const [deskUrl, setDeskUrl] = useState("https://accounting.zatgoinnovation.com");
   const [doDbPassword, setDoDbPassword] = useState("");
   const [localDbPassword, setLocalDbPassword] = useState("");
   const [sshReady, setSshReady] = useState<boolean | null>(null);
@@ -50,14 +50,14 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       const data = await fetchSettings();
-      setProvider(data.settings.cloudProvider || "digitalocean");
+      setProvider(data.settings.cloudProvider || "hetzner");
       setHost(data.settings.doSshHost);
       setUser(data.settings.doSshUser);
       setPort(String(data.settings.doSshPort));
       setKeyPath(data.settings.doSshKeyPath);
       setContainer(data.settings.doBackendContainer || "");
-      setDefaultSite(data.settings.doDefaultSite || "erp.zatgo.online");
-      setDeskUrl(data.settings.doDeskUrl || "https://erp.zatgo.online");
+      setDefaultSite(data.settings.doDefaultSite || "accounting.zatgoinnovation.com");
+      setDeskUrl(data.settings.doDeskUrl || "https://accounting.zatgoinnovation.com");
       setSshReady(data.sshReady);
       setSshError(data.sshError);
       setHosted(Boolean(data.hosted));
@@ -84,13 +84,13 @@ export default function SettingsPage() {
 
   const settingsPayload = () => ({
     cloudProvider: provider,
-    doSshHost: host.trim() || meta?.hostPlaceholder || "157.230.8.164",
+    doSshHost: host.trim() || meta?.hostPlaceholder || "2.29.17.8",
     doSshUser: user.trim() || meta?.defaultUser || "root",
     doSshPort: Number(port) || 22,
     doSshKeyPath: keyPath.trim(),
     doBackendContainer: container.trim(),
-    doDefaultSite: defaultSite.trim() || "erp.zatgo.online",
-    doDeskUrl: deskUrl.trim() || "https://erp.zatgo.online",
+    doDefaultSite: defaultSite.trim() || "accounting.zatgoinnovation.com",
+    doDeskUrl: deskUrl.trim() || "https://accounting.zatgoinnovation.com",
   });
 
   const onSave = async (e: React.FormEvent) => {
@@ -154,7 +154,7 @@ export default function SettingsPage() {
     <div>
       <PageHeader
         title="Settings"
-        description="Production cloud setup: pick DigitalOcean, Hetzner, Azure, or AWS, enter Public IP + SSH, then test. Same transport on all — SSH → docker exec. Persist only works on localhost — not on Vercel."
+        description="Production cloud setup: pick Hetzner, Azure, or AWS, enter Public IP + SSH, then test. Same transport on all — SSH → docker exec. Persist only works on localhost — not on Vercel."
       />
 
       {hosted ? (
@@ -232,11 +232,6 @@ export default function SettingsPage() {
                   />
                   <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
                     {meta.hostHint}
-                    {provider === "digitalocean" ? (
-                      <>
-                        . Default <code>157.230.8.164</code>
-                      </>
-                    ) : null}
                   </p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -285,7 +280,7 @@ export default function SettingsPage() {
                     id="site"
                     value={defaultSite}
                     onChange={(e) => setDefaultSite(e.target.value)}
-                    placeholder="erp.zatgo.online"
+                    placeholder="accounting.zatgoinnovation.com"
                     disabled={loading || busy}
                   />
                 </div>
@@ -295,7 +290,7 @@ export default function SettingsPage() {
                     id="desk"
                     value={deskUrl}
                     onChange={(e) => setDeskUrl(e.target.value)}
-                    placeholder="https://erp.zatgo.online"
+                    placeholder="https://accounting.zatgoinnovation.com"
                     disabled={loading || busy}
                   />
                 </div>
@@ -305,7 +300,7 @@ export default function SettingsPage() {
                     id="container"
                     value={container}
                     onChange={(e) => setContainer(e.target.value)}
-                    placeholder="frappe_docker-backend-1"
+                    placeholder="erpnext-backend-1"
                     disabled={loading || busy}
                   />
                   <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">

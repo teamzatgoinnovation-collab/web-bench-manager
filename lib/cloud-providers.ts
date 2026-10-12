@@ -1,7 +1,6 @@
 /** SSH-based cloud targets (same transport: SSH → docker exec). */
 
 export const SSH_CLOUD_PROVIDERS = [
-  "digitalocean",
   "hetzner",
   "azure",
   "aws",
@@ -23,17 +22,6 @@ export type CloudProviderMeta = {
 };
 
 export const CLOUD_PROVIDER_META: Record<SshCloudProvider, CloudProviderMeta> = {
-  digitalocean: {
-    id: "digitalocean",
-    label: "DigitalOcean",
-    blurb: "Droplet · Public IPv4 · SSH → docker exec",
-    hostLabel: "Droplet Public IPv4",
-    hostHint: "DO → Droplet → Networking → Public IPv4",
-    hostPlaceholder: "157.230.8.164",
-    defaultUser: "root",
-    machineSection: "DigitalOcean droplet",
-    dbPasswordLabel: "Cloud MariaDB root password",
-  },
   hetzner: {
     id: "hetzner",
     label: "Hetzner",

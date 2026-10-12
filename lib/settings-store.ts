@@ -27,11 +27,11 @@ const USER_RE = /^[A-Za-z0-9._-]+$/;
 const SITE_RE = /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/i;
 const URL_RE = /^https?:\/\/[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?(:\d+)?(\/.*)?$/i;
 
-export const DEFAULT_DO_SSH_HOST = "157.230.8.164";
+export const DEFAULT_DO_SSH_HOST = "2.29.17.8";
 export const DEFAULT_DO_SSH_USER = "root";
 export const DEFAULT_DO_SSH_PORT = 22;
-export const DEFAULT_DO_SITE = "erp.zatgo.online";
-export const DEFAULT_DO_DESK_URL = "https://erp.zatgo.online";
+export const DEFAULT_DO_SITE = "accounting.zatgoinnovation.com";
+export const DEFAULT_DO_DESK_URL = "https://accounting.zatgoinnovation.com";
 
 function isServerlessReadonlyFs(): boolean {
   // Real serverless runtimes only — not local `next dev` with Vercel CLI env pull.
@@ -221,11 +221,11 @@ export function getSettingsFormValues(): SettingsFormValues {
     process.env.DO_DESK_URL?.trim() ||
     DEFAULT_DO_DESK_URL;
 
-  let cloudProvider: CloudProvider = "digitalocean";
+  let cloudProvider: CloudProvider = "hetzner";
   if (stored.cloudProvider && isCloudProvider(stored.cloudProvider)) {
     cloudProvider = stored.cloudProvider;
   } else if (stored.doSshHost || process.env.DO_SSH_HOST?.trim()) {
-    cloudProvider = "digitalocean";
+    cloudProvider = "hetzner"; // legacy "digitalocean" values fall back here
   }
 
   return {

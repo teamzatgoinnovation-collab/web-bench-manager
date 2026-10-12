@@ -8,7 +8,7 @@ export type EnvPreset = {
   deskHint: string;
 };
 
-export const DEFAULT_SITE = "erp.zatgo.online";
+export const DEFAULT_SITE = "accounting.zatgoinnovation.com";
 
 export const ENV_PRESETS: Record<EnvKey, EnvPreset> = {
   local: {
@@ -21,9 +21,9 @@ export const ENV_PRESETS: Record<EnvKey, EnvPreset> = {
   cloud: {
     key: "cloud",
     label: "Cloud",
-    backendContainer: "frappe_docker-backend-1",
+    backendContainer: "erpnext-backend-1",
     defaultSite: DEFAULT_SITE,
-    deskHint: "https://erp.zatgo.online",
+    deskHint: "https://accounting.zatgoinnovation.com",
   },
 };
 

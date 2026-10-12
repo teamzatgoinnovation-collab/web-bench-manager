@@ -6,7 +6,7 @@
 **Port:** 3008  
 **Stack:** [FRONTEND_STACK](../../../Docs/Foundation/FRONTEND_STACK.md)
 
-Local-only UI for Frappe/ERPNext benches: **Local** (host `docker exec`) vs **Cloud** (SSH → remote `docker exec` on DigitalOcean, Hetzner, Azure, or AWS). Console layout mirrors Frappe Cloud (Sites → site detail, Bench updates, Jobs with stages) while staying a privileged localhost ops tool — not a public SaaS.
+Local-only UI for Frappe/ERPNext benches: **Local** (host `docker exec`) vs **Cloud** (SSH → remote `docker exec` on Hetzner, Azure, or AWS). Console layout mirrors Frappe Cloud (Sites → site detail, Bench updates, Jobs with stages) while staying a privileged localhost ops tool — not a public SaaS.
 
 ## Console map
 
@@ -59,15 +59,15 @@ See [`Clients/flutter/bench_manager`](../flutter/bench_manager).
 
 | Env key | UI label | Transport | Default site |
 |---------|----------|-----------|--------------|
-| `local` | Local | `docker exec erpnext-backend-1` | `erp.zatgo.online` |
-| `cloud` | DigitalOcean / Hetzner / Azure / AWS | SSH then `docker exec` (discover `*backend*`) | `erp.zatgo.online` |
+| `local` | Local | `docker exec erpnext-backend-1` | `accounting.zatgoinnovation.com` |
+| `cloud` | Hetzner / Azure / AWS | SSH then `docker exec` (discover `*backend*`) | `accounting.zatgoinnovation.com` |
 
 ### Cloud setup (Settings UI)
 
 1. Open **Settings**
-2. Choose **DigitalOcean**, **Hetzner**, **Azure**, or **AWS** (same SSH → docker exec transport)
-3. Enter **Public IPv4**, SSH user/port/key path (defaults: DO/Hetzner `root`, Azure `azureuser`, AWS `ubuntu`)
-4. Set production site (`erp.zatgo.online`) and Desk URL
+2. Choose **Hetzner**, **Azure**, or **AWS** (same SSH → docker exec transport)
+3. Enter **Public IPv4**, SSH user/port/key path (defaults: Hetzner `root`, Azure `azureuser`, AWS `ubuntu`)
+4. Set production site (`accounting.zatgoinnovation.com`) and Desk URL
 5. **Test connection**, then **Save**
 6. Switch env to the selected cloud provider in the header
 
@@ -76,13 +76,13 @@ Values persist in `data/settings.json` (gitignored) and override `.env.local`.
 ### Cloud SSH `.env.local` (fallback)
 
 ```bash
-DO_SSH_HOST=157.230.8.164
+DO_SSH_HOST=2.29.17.8
 DO_SSH_USER=root
 DO_SSH_PORT=22
 DO_SSH_KEY_PATH=/home/YOU/.ssh/id_ed25519
-# DO_BACKEND_CONTAINER=frappe_docker-backend-1
-# DO_DEFAULT_SITE=erp.zatgo.online
-# DO_DESK_URL=https://erp.zatgo.online
+# DO_BACKEND_CONTAINER=erpnext-backend-1
+# DO_DEFAULT_SITE=accounting.zatgoinnovation.com
+# DO_DESK_URL=https://accounting.zatgoinnovation.com
 # DO_DB_ROOT_PASSWORD=…   # Sites → New site on cloud
 # LOCAL_DB_ROOT_PASSWORD=…  # Sites → New site on Local
 ```

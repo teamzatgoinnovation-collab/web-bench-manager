@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchSettings } from "@/lib/client";
 import { cloudProviderLabel } from "@/lib/cloud-providers";
 
-/** Active SSH cloud provider label (DigitalOcean / Hetzner / Azure / AWS). */
+/** Active SSH cloud provider label (Hetzner / Azure / AWS). */
 export function useCloudLabel(fallback = "Cloud") {
   const [label, setLabel] = useState(fallback);
 

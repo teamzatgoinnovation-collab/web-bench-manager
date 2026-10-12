@@ -144,7 +144,7 @@ export async function runSsh(remoteCommand: string, opts?: { timeoutMs?: number 
 function pickBackendContainer(names: string[], preferred?: string): string | null {
   const cleaned = names.map((n) => n.trim()).filter(Boolean);
   if (preferred && cleaned.includes(preferred)) return preferred;
-  const frappe = cleaned.find((n) => n === "frappe_docker-backend-1");
+  const frappe = cleaned.find((n) => n === "erpnext-backend-1");
   if (frappe) return frappe;
   const backend1 = cleaned.find((n) => /backend-1$/.test(n));
   if (backend1) return backend1;
