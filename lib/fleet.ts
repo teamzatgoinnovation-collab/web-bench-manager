@@ -52,7 +52,13 @@ function shq(s: string): string {
   return `'${s.replace(/'/g, `'\\''`)}'`;
 }
 
+/** FLEET_TRANSPORT=local: the tool runs on the box itself (docker.sock mounted) — no ssh hop. */
+export function isLocalFleetTransport(): boolean {
+  return process.env.FLEET_TRANSPORT === "local";
+}
+
 export function fleetSsh(remote: string, timeoutMs = 120_000, t = getFleetTarget()): Promise<RunResult> {
+  if (isLocalFleetTransport()) return runCommand("sh", ["-c", remote], { timeoutMs });
   return runCommand("ssh", [...sshArgs(t), `${t.user}@${t.host}`, "--", remote], { timeoutMs });
 }
 
@@ -94,6 +100,8 @@ export type FleetSnapshot = {
   deployed: Record<string, Record<string, string>>;
   local: Record<string, { head: string | null; dirty: boolean; error?: string }>;
   checkedAt: number;
+  /** false on the hosted copy: the source repos live on the operator's machine, not on the box */
+  canDeploy: boolean;
 };
 
 export async function fleetSnapshot(): Promise<FleetSnapshot> {
@@ -150,6 +158,7 @@ export async function fleetSnapshot(): Promise<FleetSnapshot> {
     deployed,
     local,
     checkedAt: Date.now(),
+    canDeploy: !isLocalFleetTransport(),
   };
 }
 
@@ -163,6 +172,9 @@ export type SyncOptions = {
 };
 
 export function startFleetSyncJob(opts: SyncOptions): string {
+  if (isLocalFleetTransport()) {
+    throw new Error("Code deploy is disabled on the hosted copy (no source checkout / GitHub access on the box). Run Bench Manager locally to deploy.");
+  }
   const t = getFleetTarget();
   const job = createJob("hetzner-sync", { env: "cloud" });
   const id = job.id;

@@ -14,6 +14,7 @@ type Snapshot = {
   deployed: Record<string, Record<string, string>>;
   local: Record<string, { head: string | null; dirty: boolean; error?: string }>;
   checkedAt: number;
+  canDeploy: boolean;
 };
 type FleetApps = Record<string, { repo: string; label: string }>;
 
@@ -165,7 +166,8 @@ export default function FleetPage() {
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={restart} onCheckedChange={(v) => setRestart(v === true)} /> Restart backend/queue/scheduler/websocket</label>
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={build} onCheckedChange={(v) => setBuild(v === true)} /> bench build --app (JS/CSS changed)</label>
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={allowDirty} onCheckedChange={(v) => setAllowDirty(v === true)} /> Allow dirty working tree (uncommitted changes are NOT shipped)</label>
-            <Button onClick={() => void run()} disabled={busy || !selApps.size}>{busy ? "Running…" : "Deploy to Hetzner"}</Button>
+            {!snap.canDeploy ? <p className="text-xs text-amber-500">Hosted copy: code deploy is disabled (no source checkout on the server). Run Bench Manager locally to deploy.</p> : null}
+            <Button onClick={() => void run()} disabled={busy || !selApps.size || !snap.canDeploy}>{busy ? "Running…" : "Deploy to Hetzner"}</Button>
           </section>
         </>
       ) : null}

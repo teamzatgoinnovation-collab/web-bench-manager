@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { isAuthenticated, requireAuthResponse } from "@/lib/auth";
 import { isValidSiteName } from "@/lib/config";
-import { FLEET_APPS, startFleetSyncJob } from "@/lib/fleet";
+import { FLEET_APPS, isLocalFleetTransport, startFleetSyncJob } from "@/lib/fleet";
 
 export async function POST(request: Request) {
   if (!(await isAuthenticated())) return requireAuthResponse();
+  if (isLocalFleetTransport()) return NextResponse.json({ error: "Deploy disabled on hosted copy" }, { status: 409 });
   let body: { apps?: string[]; sites?: string[]; restart?: boolean; build?: boolean; allowDirty?: boolean } = {};
   try {
     body = (await request.json()) as typeof body;
